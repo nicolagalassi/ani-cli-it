@@ -147,7 +147,7 @@ cleanup() {
 # SCRAPING
 
 select_quality() {
-    # animeworld exposes a single direct mp4 per episode; keep the interface for the change_quality menu
+    # animeworld exposes a single direct mp4 per episode; picks the only link and sets $episode
     case "$1" in
         best) result=$(printf "%s" "$links" | head -n1) ;;
         worst) result=$(printf "%s" "$links" | tail -n1) ;;
@@ -606,16 +606,12 @@ tput sc
 play
 [ "$player_function" = "download" ] || [ "$player_function" = "debug" ] && exit 0
 
-while cmd=$(printf "next\nreplay\nprevious\nselect\nchange_quality\nquit" | nth "Playing episode $ep_no of $title... "); do
+while cmd=$(printf "next\nreplay\nprevious\nselect\nquit" | nth "Playing episode $ep_no of $title... "); do
     case "$cmd" in
         next) ep_no=$(printf "%s" "$ep_list" | sed -n "/^${ep_no}$/{n;p;}") 2>/dev/null ;;
         replay) episode="$replay" ;;
         previous) ep_no=$(printf "%s" "$ep_list" | sed -n "/^${ep_no}$/{g;1!p;};h") 2>/dev/null ;;
         select) ep_no=$(printf "%s" "$ep_list" | nth "Select episode: " "$multi_selection_flag") ;;
-        change_quality)
-            new_quality="$(printf "%s" "$links" | launcher | cut -d\> -f1)"
-            select_quality "$new_quality"
-            ;;
         *)
             cleanup
             exit 0
