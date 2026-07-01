@@ -29,7 +29,7 @@ A cli to browse and watch anime — <b>Italian fork</b> that scrapes <a href="ht
 - [Installazione](#installazione)
 - [Disinstallazione](#disinstallazione)
 - [Dipendenze](#dipendenze)
-  - [Ani-Skip](#ani-skip)
+  - [Salto sigle](#salto-sigle-ani-skip-integrato)
 - [FAQ](#faq)
 - [Progetti simili](#homies)
 - [Disclaimer](./disclaimer.md)
@@ -143,22 +143,28 @@ La cronologia è salvata in `~/.local/state/ani-cli`; per rimuoverla: `rm -rf ~/
 - iina - sostituto di mpv per MacOS
 - aria2c - Download manager (per `-d`)
 - fzf - Interfaccia utente
-- ani-skip (opzionale, per saltare le sigle)
+- ani-skip **integrato** (nessuna installazione separata; salta sigle OP/ED su mpv)
 - patch - Auto-aggiornamento (`-U`)
 
 *Nota: rispetto all'originale, questo fork **non** usa `openssl`, `yt-dlp` o `ffmpeg`: AnimeWorld serve file mp4 diretti, quindi il download passa solo da `aria2c`.*
 
-### Ani-Skip
+### Salto sigle (ani-skip integrato)
 
-Ani-skip is a script to automatically skip anime opening sequences, making it easier to watch your favorite shows without having to manually skip the intros each time (from the original [README](https://github.com/synacktraa/ani-skip/tree/master#a-script-to-automatically-skip-anime-opening-sequences-making-it-easier-to-watch-your-favorite-shows-without-having-to-manually-skip-the-intros-each-time)).
+A differenza dell'originale, **ani-skip è già integrato** in questo fork: non devi installare nulla a parte. Usa `--skip` per saltare automaticamente sigla iniziale (OP) e finale (ED):
 
-For install instructions visit [ani-skip](https://github.com/synacktraa/ani-skip).
+```sh
+ani-cli-it --skip <nome anime>
+```
 
-Ani-skip uses the external lua script function of mpv and as such – for now – only works with mpv.
+Come funziona:
+- L'ID MyAnimeList viene letto **direttamente dalla pagina di AnimeWorld** (più affidabile della ricerca per titolo, che fallirebbe sui titoli italiani).
+- I tempi di salto arrivano dall'[API di aniskip](https://api.aniskip.com).
+- Al primo uso viene installato in automatico un piccolo plugin lua di mpv in `~/.config/mpv/scripts/anicli-skip.lua`.
 
-**Warning:** For now, ani-skip does **not** seem to work under Windows.
-
-**Note:** It may be, that ani-skip won't know the anime you're trying to watch. Try using the `--skip-title <title>` command line argument. (It uses the [aniskip API](https://github.com/lexesjan/typescript-aniskip-extension/tree/main/src/api/aniskip-http-client) and you can contribute missing anime or ask for including it in the database on their [discord server](https://discord.com/invite/UqT55CbrbE)).
+Note:
+- Funziona **solo con mpv** (usa lo scripting lua di mpv).
+- Se l'anime non è riconosciuto o non ha tempi di salto, la riproduzione continua normale (nessun errore).
+- Puoi forzare l'anime con `--skip-title <mal_id>` (un numero = ID MyAnimeList) oppure `--skip-title "<titolo>"` (ricerca su MyAnimeList via Jikan).
 
 ## FAQ
 <details>
