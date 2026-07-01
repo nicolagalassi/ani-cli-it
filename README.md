@@ -13,6 +13,9 @@
 <a href="https://github.com/pystardust/ani-cli"><img src="https://img.shields.io/badge/upstream-pystardust%2Fani--cli-lightgrey"></a>
 <a href="https://github.com/synacktraa/ani-skip"><img src="https://img.shields.io/badge/ani--skip-integrato-orange"></a>
 <br>
+<br>
+<a href="https://ko-fi.com/galax95"><img src="https://img.shields.io/badge/Ko--fi-Offrimi%20un%20caff%C3%A8-FF5E5B?logo=ko-fi&logoColor=white"></a>
+<a href="https://www.paypal.com/donate/?hosted_button_id=826CHYWWZFYBW"><img src="https://img.shields.io/badge/PayPal-Dona-00457C?logo=paypal&logoColor=white"></a>
 
 </p>
 
@@ -38,6 +41,7 @@ A cli to browse and watch anime — <b>Italian fork</b> that scrapes <a href="ht
 - [FAQ](#faq)
 - [Progetti simili](#homies)
 - [Crediti](#crediti)
+- [Supporta il progetto](#supporta-il-progetto)
 - [Disclaimer](./disclaimer.md)
 
 ## Quickstart (Arch)
@@ -203,6 +207,19 @@ Note:
 * [Curd](https://github.com/Wraient/curd): A CLI tool to watch anime with Anilist, Discord RPC, Skip Intro/Outro/Filler/Recap (Go)
 * [FastAnime](https://github.com/Benex254/FastAnime): browser anime experience from the terminal (Python)
 * [ani-skip](https://github.com/KilDesu/ani-skip): Automatically skip opening and ending sequences for IINA on MacOS (Typescript, official IINA plugin API)
+
+## Supporta il progetto
+
+Se questo fork ti è utile, puoi offrirmi un caffè: aiuta a tenerlo aggiornato quando AnimeWorld cambia dominio o struttura. Grazie! ❤️
+
+<p align="center">
+<a href="https://ko-fi.com/galax95"><img src="https://img.shields.io/badge/Ko--fi-Offrimi%20un%20caff%C3%A8-FF5E5B?logo=ko-fi&logoColor=white" height="32"></a>
+&nbsp;&nbsp;
+<a href="https://www.paypal.com/donate/?hosted_button_id=826CHYWWZFYBW"><img src="https://img.shields.io/badge/PayPal-Dona-00457C?logo=paypal&logoColor=white" height="32"></a>
+</p>
+
+- Ko-fi: https://ko-fi.com/galax95
+- PayPal: https://www.paypal.com/donate/?hosted_button_id=826CHYWWZFYBW
 
 ## Crediti
 
