@@ -38,7 +38,6 @@ A cli to browse and watch anime — <b>Italian fork</b> that scrapes <a href="ht
 - [Disinstallazione](#disinstallazione)
 - [Dipendenze](#dipendenze)
   - [Salto sigle](#salto-sigle-ani-skip-integrato)
-  - [Interfaccia grafica](#interfaccia-grafica-gui)
 - [FAQ](#faq)
 - [Progetti simili](#homies)
 - [Crediti](#crediti)
@@ -72,9 +71,6 @@ ani-cli-it -e 1-12 <nome>      # intervallo di episodi
 ani-cli-it -c                  # riprendi dalla cronologia
 ani-cli-it -d -e 1 <nome>      # scarica invece di riprodurre
 ani-cli-it -v <nome>           # usa VLC al posto di mpv
-ani-cli-it --skip <nome>       # salta sigle OP/ED (mpv)
-ani-cli-it --gui <nome>        # interfaccia grafica (finestre zenity)
-ani-cli-it --gui               # tutto da GUI: cerca, scegli anime ed episodio a finestre
 ```
 
 Sub ITA di default (voci senza badge DUB su AnimeWorld); con `--dub` solo i titoli doppiati in italiano. Se AnimeWorld cambia dominio, aggiorna la riga `animeworld_base="www.animeworld.ac"` in cima allo script.
@@ -159,7 +155,6 @@ La cronologia è salvata in `~/.local/state/ani-cli`; per rimuoverla: `rm -rf ~/
 - fzf - Interfaccia utente
 - ani-skip **integrato** (nessuna installazione separata; salta sigle OP/ED su mpv)
 - patch - Auto-aggiornamento (`-U`)
-- zenity - opzionale, per l'interfaccia grafica `--gui`
 
 *Nota: rispetto all'originale, questo fork **non** usa `openssl`, `yt-dlp` o `ffmpeg`: AnimeWorld serve file mp4 diretti, quindi il download passa solo da `aria2c`.*
 
@@ -180,23 +175,6 @@ Note:
 - Funziona **solo con mpv** (usa lo scripting lua di mpv).
 - Se l'anime non è riconosciuto o non ha tempi di salto, la riproduzione continua normale (nessun errore).
 - Puoi forzare l'anime con `--skip-title <mal_id>` (un numero = ID MyAnimeList) oppure `--skip-title "<titolo>"` (ricerca su MyAnimeList via Jikan).
-
-### Interfaccia grafica (`--gui`)
-
-Con `--gui` l'interazione avviene tramite finestre grafiche ([zenity](https://gitlab.gnome.org/GNOME/zenity)) invece di fzf nel terminale: comoda se avvii ani-cli-it da un launcher o da una scorciatoia del desktop.
-
-```sh
-ani-cli-it --gui            # cerca, scegli anime ed episodio a finestre
-ani-cli-it --gui <nome>     # salta la finestra di ricerca
-```
-
-Il flusso è: casella di ricerca → elenco anime → elenco episodi → menu comandi (prossimo, replay, precedente, ecc.). Puoi selezionare più episodi insieme (Ctrl/Shift) per guardarli in sequenza. Richiede `zenity`:
-
-```sh
-sudo pacman -S zenity      # Arch
-```
-
-Restano disponibili anche `--rofi` e `--dmenu` come menu alternativi.
 
 ## FAQ
 <details>

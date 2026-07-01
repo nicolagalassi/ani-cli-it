@@ -7,19 +7,6 @@ version_number="4.14.1"
 external_menu() {
     [ "$use_external_menu" = "1" ] && rofi "$1" -sort -dmenu -i -width 1500 -p "$2" "$3"
     [ "$use_external_menu" = "2" ] && dmenu -l 20 -p "$2"
-    [ "$use_external_menu" = "3" ] && gui_menu "$1" "$2"
-}
-
-# zenity-based GUI backend: empty stdin -> text entry (search); otherwise -> selectable list
-gui_menu() {
-    gui_input="$(cat)"
-    if [ -z "$gui_input" ]; then
-        zenity --entry --width=500 --title="ani-cli-it" --text="${2:-Search anime:}" 2>/dev/null
-    else
-        # $1 carries "--multiple" for batch episode selection; newline separator keeps nth's range logic working
-        printf '%s\n' "$gui_input" | zenity --list $1 --separator="$gui_nl" --hide-header \
-            --width=900 --height=600 --title="ani-cli-it" --text="${2:-Select:}" --column="${2:-Select:}" 2>/dev/null
-    fi
 }
 
 launcher() {
@@ -27,11 +14,7 @@ launcher() {
     [ "$use_external_menu" = "0" ] && fzf "$1" --reverse --cycle --prompt "$2"
     [ "$use_external_menu" = "1" ] && external_menu "$1" "$2" "$external_menu_args"
     [ "$use_external_menu" = "2" ] && external_menu "$1" "$2"
-    [ "$use_external_menu" = "3" ] && external_menu "$1" "$2"
 }
-
-# literal newline used as zenity --list separator (for multi-selection)
-gui_nl="$(printf '\nx')" && gui_nl="${gui_nl%x}"
 
 nth() {
     stdin=$(cat -)
@@ -93,8 +76,6 @@ help_info() {
         Use rofi instead of fzf for the interactive menu
       --dmenu
         Use dmenu instead of fzf for the interactive menu
-      --gui
-        Use a graphical menu (zenity) instead of fzf for the interactive menu
       --skip
         Skip opening/ending automatically (integrated, mpv only; installs a small mpv lua plugin on first use)
       --no-detach
@@ -415,7 +396,6 @@ play_episode() {
     update_history
     [ "$use_external_menu" = "1" ] && wait
     [ "$use_external_menu" = "2" ] && wait
-    [ "$use_external_menu" = "3" ] && wait
 }
 
 play() {
@@ -535,7 +515,6 @@ while [ $# -gt 0 ]; do
         --exit-after-play) exit_after_play=1 && no_detach=1 ;;
         --rofi) use_external_menu=1 ;;
         --dmenu) use_external_menu=2 ;;
-        --gui) use_external_menu=3 ;;
         --skip) skip_intro=1 ;;
         --skip-title)
             [ $# -lt 2 ] && die "missing argument!"
@@ -553,13 +532,11 @@ while [ $# -gt 0 ]; do
 done
 [ "$use_external_menu" = "0" ] && multi_selection_flag="${ANI_CLI_MULTI_SELECTION:-"-m"}"
 [ "$use_external_menu" = "1" ] && multi_selection_flag="${ANI_CLI_MULTI_SELECTION:-"-multi-select"}"
-[ "$use_external_menu" = "3" ] && multi_selection_flag="${ANI_CLI_MULTI_SELECTION:-"--multiple"}"
 [ "$external_menu_normal_window" = "1" ] && external_menu_args="-normal-window"
 printf "\33[2K\r\033[1;34mChecking dependencies...\033[0m\n"
 dep_ch "curl" "sed" "grep" || true
 # openssl no longer required (animeworld serves direct mp4)
-[ "$use_external_menu" != "3" ] && (dep_ch "fzf" || true)
-[ "$use_external_menu" = "3" ] && (dep_ch "zenity" || true)
+dep_ch "fzf" || true
 case "$player_function" in
     debug) ;;
     download) dep_ch "aria2c" ;;
