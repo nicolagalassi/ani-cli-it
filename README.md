@@ -11,6 +11,7 @@
 <a href="https://github.com/nicolagalassi/ani-cli-it"><img src="https://img.shields.io/badge/fork-ITA-blue"></a>
 <a href="https://www.animeworld.ac/"><img src="https://img.shields.io/badge/source-AnimeWorld-brightgreen"></a>
 <a href="https://github.com/pystardust/ani-cli"><img src="https://img.shields.io/badge/upstream-pystardust%2Fani--cli-lightgrey"></a>
+<a href="https://github.com/synacktraa/ani-skip"><img src="https://img.shields.io/badge/ani--skip-integrato-orange"></a>
 <br>
 
 </p>
@@ -23,6 +24,10 @@ A cli to browse and watch anime — <b>Italian fork</b> that scrapes <a href="ht
 ⚠️ Fork italiano di <a href="https://github.com/pystardust/ani-cli">pystardust/ani-cli</a>: usa AnimeWorld al posto di allmanga, quindi trovi anime con sottotitoli e doppiaggio in italiano.
 </h3>
 
+<h3 align="center">
+✨ <b>ani-skip integrato</b>: salto automatico di sigle iniziali e finali con <code>--skip</code>, senza installare nulla a parte (basato su <a href="https://github.com/synacktraa/ani-skip">synacktraa/ani-skip</a>).
+</h3>
+
 ## Table of Contents
 
 - [Risoluzione problemi](#risoluzione-problemi)
@@ -32,6 +37,7 @@ A cli to browse and watch anime — <b>Italian fork</b> that scrapes <a href="ht
   - [Salto sigle](#salto-sigle-ani-skip-integrato)
 - [FAQ](#faq)
 - [Progetti simili](#homies)
+- [Crediti](#crediti)
 - [Disclaimer](./disclaimer.md)
 
 ## Quickstart (Arch)
@@ -197,3 +203,10 @@ Note:
 * [Curd](https://github.com/Wraient/curd): A CLI tool to watch anime with Anilist, Discord RPC, Skip Intro/Outro/Filler/Recap (Go)
 * [FastAnime](https://github.com/Benex254/FastAnime): browser anime experience from the terminal (Python)
 * [ani-skip](https://github.com/KilDesu/ani-skip): Automatically skip opening and ending sequences for IINA on MacOS (Typescript, official IINA plugin API)
+
+## Crediti
+
+- [pystardust/ani-cli](https://github.com/pystardust/ani-cli) — progetto originale da cui deriva questo fork
+- [synacktraa/ani-skip](https://github.com/synacktraa/ani-skip) — logica di salto sigle e plugin lua di mpv, qui reimplementati e integrati
+- [AnimeWorld](https://www.animeworld.ac/) — sorgente dei contenuti (Sub ITA / Doppiaggio ITA)
+- [aniskip API](https://api.aniskip.com) — tempi di OP/ED
