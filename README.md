@@ -22,7 +22,11 @@
 </p>
 
 <h3 align="center">
-A cli to browse and watch anime (alone AND with friends). This tool scrapes the site <a href="https://allmanga.to/">allmanga.</a>
+A cli to browse and watch anime — <b>Italian fork</b> that scrapes <a href="https://www.animeworld.ac/">AnimeWorld</a> for <b>Sub ITA</b> and <b>Doppiaggio ITA</b>.
+</h3>
+
+<h3 align="center">
+⚠️ Fork italiano di <a href="https://github.com/pystardust/ani-cli">pystardust/ani-cli</a>: usa AnimeWorld al posto di allmanga, quindi trovi anime con sottotitoli e doppiaggio in italiano.
 </h3>
 
 <h1 align="center">
@@ -45,6 +49,38 @@ A cli to browse and watch anime (alone AND with friends). This tool scrapes the 
 - [Homies](#homies)
 - [Contribution Guidelines](./CONTRIBUTING.md)
 - [Disclaimer](./disclaimer.md)
+
+## Installazione (fork ITA)
+
+Questo fork è uno **script shell singolo** (`ani-cli`). Dipendenze: `curl`, `sed`, `grep`, `fzf`, `mpv` (player) e `aria2c` (per il download). Su Arch:
+
+```sh
+sudo pacman -S --needed curl sed grep fzf mpv aria2
+```
+
+Poi installa lo script dal repo:
+
+```sh
+git clone https://github.com/nicolagalassi/ani-cli-it.git
+cd ani-cli-it
+sudo install -Dm755 ani-cli /usr/local/bin/ani-cli-it
+```
+
+Viene installato come **`ani-cli-it`**, così convive con l'`ani-cli` originale (inglese) eventualmente già presente. Aggiornamenti futuri: `git pull` + di nuovo `sudo install ...`, oppure `ani-cli-it -U`.
+
+### Uso
+
+```sh
+ani-cli-it <nome anime>        # ricerca interattiva, Sub ITA
+ani-cli-it --dub <nome anime>  # Doppiaggio ITA
+ani-cli-it -e 1-12 <nome>      # intervallo di episodi
+ani-cli-it -c                  # riprendi dalla cronologia
+ani-cli-it -d -e 1 <nome>      # scarica invece di riprodurre
+ani-cli-it -v <nome>           # usa VLC al posto di mpv
+```
+
+Sub ITA di default (voci senza badge DUB su AnimeWorld); con `--dub` solo i titoli doppiati in italiano. Se AnimeWorld cambia dominio, aggiorna la riga `animeworld_base="www.animeworld.ac"` in cima allo script.
+
 
 ## Fixing errors
 
