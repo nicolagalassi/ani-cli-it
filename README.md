@@ -79,7 +79,12 @@ Sub ITA di default (voci senza badge DUB su AnimeWorld); con `--dub` solo i tito
 
 AnimeWorld cambia dominio abbastanza spesso. Se ani-cli-it smette di trovare risultati, di solito è perché il dominio è cambiato: aggiorna la riga `animeworld_base="www.animeworld.ac"` in cima allo script col nuovo dominio e reinstalla.
 
-Per accorgersene in anticipo, il repo ha un controllo automatico ([`.github/workflows/domain-check.yml`](.github/workflows/domain-check.yml)) che ogni 3 giorni verifica che il dominio risponda, non rediriga verso un dominio diverso e sia ancora funzionale; in caso di problema apre una issue con i dettagli (e la richiude da solo quando torna tutto ok). Puoi lanciarlo anche a mano:
+Per accorgersene in anticipo, il repo ha un controllo automatico ([`.github/workflows/domain-check.yml`](.github/workflows/domain-check.yml)) che ogni 3 giorni verifica che il dominio risponda, non rediriga verso un dominio diverso e sia ancora funzionale. In caso di problema:
+
+- apre una **issue** con i dettagli (e la richiude da solo quando torna tutto ok);
+- se trova un dominio sostitutivo **funzionante** (dalla lista ufficiale o dal redirect), apre anche una **Pull Request** che aggiorna `animeworld_base` col nuovo dominio — così basta un merge per sistemarlo.
+
+Puoi lanciare il controllo anche a mano:
 
 ```sh
 .github/scripts/check-domain.sh          # usa il dominio corrente dello script
