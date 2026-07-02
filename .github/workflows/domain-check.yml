@@ -8,6 +8,11 @@ on:
   schedule:
     - cron: "0 6 */3 * *"   # ogni 3 giorni alle 06:00 UTC
   workflow_dispatch:          # esecuzione manuale dal tab Actions
+    inputs:
+      base:
+        description: "Dominio da controllare (lascia vuoto per usare quello dello script)"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -21,6 +26,8 @@ jobs:
 
       - name: Run domain check
         id: check
+        env:
+          ANI_BASE: ${{ github.event.inputs.base }}
         run: |
           set +e
           report="$(sh .github/scripts/check-domain.sh)"
