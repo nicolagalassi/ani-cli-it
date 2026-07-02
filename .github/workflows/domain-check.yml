@@ -1,0 +1,64 @@
+name: AnimeWorld domain check
+
+# Controlla periodicamente che il dominio di AnimeWorld usato da ani-cli-it
+# sia vivo, non rediriga verso un dominio diverso, e sia ancora funzionale.
+# Se rileva un problema apre (o aggiorna) una issue; quando torna tutto ok la richiude.
+
+on:
+  schedule:
+    - cron: "0 6 */3 * *"   # ogni 3 giorni alle 06:00 UTC
+  workflow_dispatch:          # esecuzione manuale dal tab Actions
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run domain check
+        id: check
+        run: |
+          set +e
+          report="$(sh .github/scripts/check-domain.sh)"
+          code=$?
+          set -e
+          {
+            echo "status=$code"
+            echo "report<<REPORT_EOF"
+            echo "$report"
+            echo "REPORT_EOF"
+          } >> "$GITHUB_OUTPUT"
+          echo "$report"
+          exit 0
+
+      - name: Open or update issue on failure
+        if: steps.check.outputs.status != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPORT: ${{ steps.check.outputs.report }}
+        run: |
+          title="AnimeWorld domain check fallito"
+          existing="$(gh issue list --state open --label domain-alert --json number --jq '.[0].number')"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$REPORT"
+            echo "Aggiornata issue #$existing"
+          else
+            gh label create domain-alert --color B60205 --description "Problema col dominio AnimeWorld" 2>/dev/null || true
+            gh issue create --title "$title" --label domain-alert --body "$REPORT"
+            echo "Creata nuova issue"
+          fi
+
+      - name: Close issue when healthy again
+        if: steps.check.outputs.status == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for n in $(gh issue list --state open --label domain-alert --json number --jq '.[].number'); do
+            gh issue comment "$n" --body ":white_check_mark: Il dominio risponde di nuovo correttamente. Chiudo automaticamente."
+            gh issue close "$n"
+            echo "Chiusa issue #$n"
+          done

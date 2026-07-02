@@ -73,7 +73,18 @@ ani-cli-it -d -e 1 <nome>      # scarica invece di riprodurre
 ani-cli-it -v <nome>           # usa VLC al posto di mpv
 ```
 
-Sub ITA di default (voci senza badge DUB su AnimeWorld); con `--dub` solo i titoli doppiati in italiano. Se AnimeWorld cambia dominio, aggiorna la riga `animeworld_base="www.animeworld.ac"` in cima allo script.
+Sub ITA di default (voci senza badge DUB su AnimeWorld); con `--dub` solo i titoli doppiati in italiano.
+
+### Cambio di dominio di AnimeWorld
+
+AnimeWorld cambia dominio abbastanza spesso. Se ani-cli-it smette di trovare risultati, di solito è perché il dominio è cambiato: aggiorna la riga `animeworld_base="www.animeworld.ac"` in cima allo script col nuovo dominio e reinstalla.
+
+Per accorgersene in anticipo, il repo ha un controllo automatico ([`.github/workflows/domain-check.yml`](.github/workflows/domain-check.yml)) che ogni 3 giorni verifica che il dominio risponda, non rediriga verso un dominio diverso e sia ancora funzionale; in caso di problema apre una issue con i dettagli (e la richiude da solo quando torna tutto ok). Puoi lanciarlo anche a mano:
+
+```sh
+.github/scripts/check-domain.sh          # usa il dominio corrente dello script
+ANI_BASE=www.animeworld.tv .github/scripts/check-domain.sh   # prova un altro dominio
+```
 
 
 ## Risoluzione problemi
