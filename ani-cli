@@ -86,6 +86,8 @@ help_info() {
         Override anime detection for skip: a MAL id (numeric) or a title to look up on MyAnimeList
       -N, --nextep-countdown
         Display a countdown to the next episode
+      --last, --latest
+        Browse the latest released episodes from the AnimeWorld home (Sub ITA, or Dub ITA with --dub)
       -U, --update
         Update the script
     Some example usages:
@@ -321,6 +323,24 @@ search_anime() {
     done | awk -F'\t' '!seen[$1]++'
 }
 
+# scrape the "Ultimi Episodi" tabs from the home page (mode sub/dub picks the tab)
+# output: <slug>\t<title> (Ep N)
+latest_episodes() {
+    _tab="sub"
+    [ "$mode" = "dub" ] && _tab="dub"
+    curl -s -A "$agent" "https://${animeworld_base}/" | tr '\n' ' ' |
+        sed 's|<div class="content|\n<div class="content|g' |
+        grep -E "^<div class=\"content[^\"]*\" data-name=\"$_tab\"" | head -1 |
+        sed 's|<div class="item">|\n|g' | while IFS= read -r _item; do
+        printf '%s' "$_item" | grep -q 'class="name"' || continue
+        _slug="$(printf '%s' "$_item" | sed -nE 's|.*<a href="/play/([^/"]*)/[^"]*"[[:space:]]*class="poster".*|\1|p' | head -1)"
+        _epnum="$(printf '%s' "$_item" | sed -nE 's|.*<div class="ep">[[:space:]]*Ep ([0-9.]+)[[:space:]]*</div>.*|\1|p' | head -1)"
+        _name="$(printf '%s' "$_item" | sed -nE 's|.*class="name"[^>]*>([^<]*)</a>.*|\1|p' | head -1 |
+            sed 's|&amp;|\&|g;s|&#0*39;|'\''|g;s|&#x27;|'\''|g;s|&quot;|"|g;s|&#0*34;|"|g;s|&lt;|<|g;s|&gt;|>|g')"
+        [ -n "$_slug" ] && [ -n "$_epnum" ] && printf '%s\t%s (Ep %s)\n' "$_slug" "$_name" "$_epnum"
+    done | awk -F'\t' '!seen[$0]++'
+}
+
 time_until_next_ep() {
     animeschedule="https://animeschedule.net"
     query="$(printf "%s\n" "$*" | tr ' ' '+')"
@@ -552,6 +572,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         -N | --nextep-countdown) search=nextep ;;
+        --last | --latest) search=latest ;;
         -U | --update)
             branch="${2:-$branch}"
             update_script
@@ -595,6 +616,20 @@ case "$search" in
         ep_list=$(episodes_list "$id")
         ep_no=$(printf "%s" "$anime_list" | grep "$id" | cut -f2 | sed -nE 's/.*- episode (.+)$/\1/p')
         anime_title="$(printf "%s" "$title" | cut -d'(' -f1 | tr -d '[:punct:]')"
+        ;;
+    latest)
+        anime_list=$(latest_episodes)
+        [ -z "$anime_list" ] && die "No latest episodes found!"
+        [ "$index" -eq "$index" ] 2>/dev/null && result=$(printf "%s" "$anime_list" | sed -n "${index}p")
+        [ -z "$index" ] && result=$(printf "%s" "$anime_list" | nl -w 2 | sed 's/^[[:space:]]//' | nth "Select episode: ")
+        [ -z "$result" ] && exit 1
+        full=$(printf "%s" "$result" | cut -f2)
+        id=$(printf "%s" "$result" | cut -f1)
+        ep_no=$(printf "%s" "$full" | sed -nE 's/.*\(Ep ([0-9.]+)\)$/\1/p')
+        title=$(printf "%s" "$full" | sed -E 's/ \(Ep [0-9.]+\)$//')
+        anime_title="$(printf "%s" "$title" | cut -d'(' -f1 | tr -d '[:punct:]')"
+        ep_list=$(episodes_list "$id")
+        [ -z "$ep_no" ] && exit 1
         ;;
     *)
         if [ "$use_external_menu" = "0" ]; then

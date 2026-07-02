@@ -69,11 +69,15 @@ ani-cli-it <nome anime>        # ricerca interattiva, Sub ITA
 ani-cli-it --dub <nome anime>  # Doppiaggio ITA
 ani-cli-it -e 1-12 <nome>      # intervallo di episodi
 ani-cli-it -c                  # riprendi dalla cronologia
-ani-cli-it -d -e 1 <nome>      # scarica invece di riprodurre
+ani-cli-it --last             # ultimi episodi usciti (Sub ITA)
+ani-cli-it --last --dub       # ultimi episodi usciti (Doppiaggio ITA)
+ani-cli-it -d -e 1 <nome>     # scarica invece di riprodurre
 ani-cli-it -v <nome>           # usa VLC al posto di mpv
 ```
 
 Sub ITA di default (voci senza badge DUB su AnimeWorld); con `--dub` solo i titoli doppiati in italiano.
+
+Con `--last` sfogli gli **ultimi episodi usciti** dalla home di AnimeWorld (come i tab "Ultimi Episodi" del sito): la modalità segue sempre la distinzione sub/dub, quindi `--last` mostra il tab Sub-ITA e `--last --dub` il tab Dub-ITA. Selezioni l'episodio e parte direttamente.
 
 ### Cambio di dominio di AnimeWorld
 
