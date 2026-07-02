@@ -89,7 +89,17 @@ ANI_BASE=www.animeworld.tv .github/scripts/check-domain.sh   # prova un altro do
 
 ## Risoluzione problemi
 
-Se ottieni `No results found` (e sei sicuro che il nome fosse corretto) o un altro errore, assicurati di essere all'**ultima versione** con `ani-cli-it -U` (usa `sudo ani-cli-it -U` se l'hai installato in `/usr/local/bin`).
+### Aggiornamenti
+
+All'avvio, ani-cli-it controlla in background (max una volta al giorno, senza rallentare la partenza) se sul repo è disponibile una versione più recente e, in tal caso, mostra un avviso tipo `Aggiornamento disponibile: 4.15.0 -> 4.16.0`. Per aggiornare:
+
+```sh
+ani-cli-it -U        # usa 'sudo ani-cli-it -U' se installato in /usr/local/bin
+```
+
+Per disattivare il controllo: `export ANI_CLI_UPDATE_CHECK=0`.
+
+Se ottieni `No results found` (e sei sicuro che il nome fosse corretto) o un altro errore, assicurati prima di essere all'ultima versione con `ani-cli-it -U`.
 Se il problema persiste, apri una issue sul [repository del fork](https://github.com/nicolagalassi/ani-cli-it/issues).
 
 Se AnimeWorld ha cambiato dominio (già successo in passato), aggiorna la riga `animeworld_base="www.animeworld.ac"` in cima allo script e reinstalla.

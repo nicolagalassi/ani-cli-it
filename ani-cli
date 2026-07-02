@@ -1,6 +1,6 @@
 #!/bin/sh
 
-version_number="4.14.1"
+version_number="4.15.0"
 
 # UI
 
@@ -119,6 +119,35 @@ update_script() {
         fi
     fi
     exit 0
+}
+
+# non-blocking update check: prints a notice from cache, refreshes the cache in the
+# background at most once a day. Never slows startup, never fails the run.
+check_update_notice() {
+    [ "$update_check" = "1" ] || return 0
+    command -v curl >/dev/null || return 0
+    _uc_cache="$hist_dir/latest_version"
+    _uc_url="https://raw.githubusercontent.com/nicolagalassi/ani-cli-it/$branch/ani-cli"
+
+    # refresh cache in background if missing or older than 24h
+    if [ ! -f "$_uc_cache" ] || [ -n "$(find "$_uc_cache" -mtime +1 2>/dev/null)" ]; then
+        (
+            _remote="$(curl --fail -sL -A "$agent" "$_uc_url" 2>/dev/null |
+                sed -n 's/^version_number="\([^"]*\)".*/\1/p' | head -1)"
+            [ -n "$_remote" ] && printf '%s\n' "$_remote" >"$_uc_cache"
+        ) >/dev/null 2>&1 &
+    fi
+
+    # show a notice using whatever is cached (from a previous run)
+    [ -f "$_uc_cache" ] || return 0
+    _latest="$(cat "$_uc_cache" 2>/dev/null)"
+    [ -n "$_latest" ] || return 0
+    # notify only if the cached remote version is strictly newer than ours
+    if [ "$_latest" != "$version_number" ] &&
+        [ "$(printf '%s\n%s\n' "$version_number" "$_latest" | sort -V | tail -1)" = "$_latest" ]; then
+        printf "\033[1;33mAggiornamento disponibile: %s -> %s. Esegui '%s -U' per aggiornare.\033[0m\n" \
+            "$version_number" "$_latest" "${0##*/}" >&2
+    fi
 }
 
 # checks if dependencies are present
@@ -455,6 +484,7 @@ histfile="$hist_dir/ani-hsts"
 [ ! -f "$histfile" ] && : >"$histfile"
 search="${ANI_CLI_DEFAULT_SOURCE:-scrape}"
 branch="${ANI_CLI_BRANCH:-master}"
+update_check="${ANI_CLI_UPDATE_CHECK:-1}"
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -545,6 +575,9 @@ case "$player_function" in
     flatpak_mpv) true ;; # handled out of band in where_mpv
     *) dep_ch "$player_function" ;;
 esac
+
+# notify (from cache) if a newer version is available on the fork
+check_update_notice
 
 # idk where to put this, so I put it here...
 trap 'cleanup; exit 1' INT HUP
