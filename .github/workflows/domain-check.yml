@@ -3,6 +3,7 @@ name: AnimeWorld domain check
 # Controlla periodicamente che il dominio di AnimeWorld usato da ani-cli-it
 # sia vivo, non rediriga verso un dominio diverso, e sia ancora funzionale.
 # Se rileva un problema apre (o aggiorna) una issue; quando torna tutto ok la richiude.
+# Se trova un dominio sostitutivo funzionante, apre anche una Pull Request che aggiorna animeworld_base.
 
 on:
   schedule:
@@ -15,8 +16,9 @@ on:
         default: ""
 
 permissions:
-  contents: read
+  contents: write
   issues: write
+  pull-requests: write
 
 jobs:
   check:
@@ -28,13 +30,17 @@ jobs:
         id: check
         env:
           ANI_BASE: ${{ github.event.inputs.base }}
+          SUGGEST_FILE: ${{ runner.temp }}/suggest
         run: |
           set +e
           report="$(sh .github/scripts/check-domain.sh)"
           code=$?
           set -e
+          suggest=""
+          [ -f "$SUGGEST_FILE" ] && suggest="$(cat "$SUGGEST_FILE")"
           {
             echo "status=$code"
+            echo "suggest=$suggest"
             echo "report<<REPORT_EOF"
             echo "$report"
             echo "REPORT_EOF"
@@ -69,3 +75,33 @@ jobs:
             gh issue close "$n"
             echo "Chiusa issue #$n"
           done
+
+      - name: Open PR with suggested domain
+        if: steps.check.outputs.status != '0' && steps.check.outputs.suggest != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SUGGEST: ${{ steps.check.outputs.suggest }}
+          REPORT: ${{ steps.check.outputs.report }}
+        run: |
+          current="$(sed -n 's/^animeworld_base="\([^"]*\)".*/\1/p' ani-cli | head -1)"
+          # apri PR solo se il dominio COMMITTATO e diverso dal suggerito (i test manuali non generano PR)
+          if [ "$current" = "$SUGGEST" ]; then
+            echo "Il dominio committato ($current) coincide col suggerito: nessuna PR."
+            exit 0
+          fi
+          branch="domain-update/$SUGGEST"
+          # se la PR/branch esiste gia, non duplicare
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            echo "Branch $branch gia esistente: nessuna nuova PR."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          sed -i "s|^animeworld_base=\"[^\"]*\"|animeworld_base=\"$SUGGEST\"|" ani-cli
+          git add ani-cli
+          git commit -m "fix: aggiorna dominio AnimeWorld a $SUGGEST"
+          git push -u origin "$branch"
+          gh pr create --title "Aggiorna dominio AnimeWorld a $SUGGEST" \
+            --body "$(printf 'Aggiornamento automatico del dominio: **%s** -> **%s**.\n\nRilevato dal controllo automatico.\n\n---\n\n%s' "$current" "$SUGGEST" "$REPORT")" \
+            --head "$branch" --base master

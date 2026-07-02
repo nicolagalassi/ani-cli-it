@@ -92,6 +92,29 @@ else
     printf '(impossibile leggere la lista ufficiale — check saltato)\n\n'
 fi
 
+# --- 4) dominio suggerito (solo se c'e un problema) ---
+suggest=""
+if [ "$status" -ne 0 ]; then
+    printf '## 4. Dominio suggerito\n\n'
+    # candidati: eventuale target del redirect + domini ufficiali, escluso quello attuale
+    candidates="$(printf '%s\n%s\n' "$final_reg" "$domains" | grep -E '^animeworld\.[a-z]{2,4}$' |
+        grep -vx "$expected_reg" | awk 'NF && !seen[$0]++')"
+    for _reg in $candidates; do
+        _cand="www.${_reg}"
+        _links="$(curl -sS -A "$agent" -L --connect-timeout 15 --max-time 45 \
+            "https://${_cand}/search?keyword=naruto" 2>/dev/null | grep -c 'href="/play/' || true)"
+        if [ "${_links:-0}" -ge 1 ]; then
+            suggest="$_cand"
+            printf ':white_check_mark: **`%s`** e raggiungibile e funzionante (%s risultati). Candidato per l'\''aggiornamento.\n\n' "$_cand" "$_links"
+            break
+        fi
+        printf -- '- `%s`: non funzionante (%s risultati)\n' "$_cand" "$_links"
+    done
+    [ -z "$suggest" ] && printf '\n:x: Nessun dominio candidato funzionante trovato automaticamente.\n\n'
+    # esporta il suggerimento per il workflow (auto-PR)
+    [ -n "$suggest" ] && [ -n "${SUGGEST_FILE:-}" ] && printf '%s\n' "$suggest" >"$SUGGEST_FILE"
+fi
+
 # --- esito ---
 printf '## Esito\n\n'
 if [ "$status" -eq 0 ]; then
