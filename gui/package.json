@@ -4,6 +4,7 @@
   "description": "GUI italiana per ani-cli-it — anime Sub/Dub ITA da AnimeWorld",
   "author": "nicolagalassi",
   "license": "GPL-3.0",
+  "repository": "https://github.com/nicolagalassi/ani-cli-it",
   "main": "electron/main.cjs",
   "type": "module",
   "scripts": {
@@ -12,8 +13,8 @@
     "dev": "concurrently -k -n vite,electron \"npm:dev:vite\" \"wait-on tcp:5173 && npm run dev:electron\"",
     "build": "vite build",
     "start": "electron .",
-    "dist": "vite build && electron-builder --linux AppImage",
-    "dist:dir": "vite build && electron-builder --linux dir"
+    "dist": "vite build && electron-builder --linux AppImage --publish never",
+    "dist:dir": "vite build && electron-builder --linux dir --publish never"
   },
   "build": {
     "appId": "com.nicolagalassi.aniplayit",
