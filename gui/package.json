@@ -11,7 +11,21 @@
     "dev:electron": "electron .",
     "dev": "concurrently -k -n vite,electron \"npm:dev:vite\" \"wait-on tcp:5173 && npm run dev:electron\"",
     "build": "vite build",
-    "start": "electron ."
+    "start": "electron .",
+    "dist": "vite build && electron-builder --linux AppImage",
+    "dist:dir": "vite build && electron-builder --linux dir"
+  },
+  "build": {
+    "appId": "com.nicolagalassi.aniplayit",
+    "productName": "AniPlay ITA",
+    "directories": { "output": "release", "buildResources": "build" },
+    "files": ["dist/**", "electron/**", "package.json"],
+    "linux": {
+      "target": ["AppImage"],
+      "category": "AudioVideo",
+      "icon": "build/icon.png",
+      "artifactName": "AniPlay-ITA-${version}.${ext}"
+    }
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -23,6 +37,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "concurrently": "^9.1.0",
     "electron": "^43.1.0",
+    "electron-builder": "^25.1.8",
     "typescript": "^5.6.3",
     "vite": "^7.3.6",
     "wait-on": "^8.0.1"
