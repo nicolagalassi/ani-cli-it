@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNav } from "../App";
 import { Card } from "../components/Card";
-import type { HistoryEntry, LatestItem, Mode } from "../types";
+import type { HistoryEntry, LatestItem, Mode, AniListEntry, AniListViewer } from "../types";
 
 export function Home() {
   const { go } = useNav();
@@ -9,9 +9,15 @@ export function Home() {
   const [mode, setMode] = useState<Mode>("sub");
   const [latest, setLatest] = useState<LatestItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewer, setViewer] = useState<AniListViewer | null>(null);
+  const [watching, setWatching] = useState<AniListEntry[]>([]);
 
   useEffect(() => {
     window.ani.history().then(setHist);
+    window.ani.alViewer().then((v) => {
+      setViewer(v);
+      if (v) window.ani.alUserList("CURRENT").then(setWatching);
+    });
   }, []);
 
   useEffect(() => {
@@ -31,7 +37,9 @@ export function Home() {
   return (
     <div className="page">
       <div className="hero">
-        <span className="hero-kicker">ANIMEWORLD · SUB / DUB ITA</span>
+        <span className="hero-kicker">
+          {viewer ? `ANILIST · ${viewer.name.toUpperCase()}` : "ANIMEWORLD · SUB / DUB ITA"}
+        </span>
         <h1 className="hero-title">La tua dashboard anime.</h1>
         <p className="hero-sub">
           Cerca, riprendi e guarda titoli in italiano — senza il disordine.
@@ -51,6 +59,29 @@ export function Home() {
                 progress={h.duration ? h.position / h.duration : null}
                 onClick={() =>
                   go({ name: "anime", slug: h.slug, title: h.title, poster: h.poster })
+                }
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {viewer && watching.length > 0 && (
+        <section className="section">
+          <h2 className="section-title">▸ In visione su AniList</h2>
+          <div className="row">
+            {watching.map((e) => (
+              <Card
+                key={e.media.id}
+                title={e.media.title.english || e.media.title.romaji}
+                poster={e.media.coverImage?.large || null}
+                badge={e.media.format}
+                sub={`Ep ${e.progress}${e.media.episodes ? " / " + e.media.episodes : ""}`}
+                onClick={() =>
+                  go({
+                    name: "browse",
+                    query: e.media.title.romaji || e.media.title.english || "",
+                  })
                 }
               />
             ))}

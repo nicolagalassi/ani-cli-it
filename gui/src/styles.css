@@ -562,3 +562,65 @@ button {
   border-radius: 5px;
   color: var(--accent);
 }
+
+/* --- anilist additions --- */
+.hero.small {
+  padding: 22px 30px;
+}
+.hero.small .hero-title {
+  font-size: 30px;
+}
+.pill.score {
+  color: #ffd76e;
+  border-color: #6a5a2a;
+}
+.synopsis {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 22px;
+}
+.genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 12px;
+}
+.genre {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.desc {
+  color: var(--dim);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+.al-account {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.al-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.al-name {
+  font-size: 18px;
+  font-weight: 700;
+}
+.al-account .tab {
+  margin-left: auto;
+}
+.al-err {
+  color: #ff8080;
+  margin-top: 8px;
+  font-size: 13px;
+}

@@ -58,7 +58,8 @@ export function Player({ route }: { route: Extract<Route, { name: "player" }> })
     };
   }, [url, ep, route.slug]);
 
-  // periodically persist progress
+  const pushedRef = useRef<string | null>(null);
+  // periodically persist progress locally, and sync to AniList when mostly watched
   function persist() {
     const { position, duration } = stateRef.current;
     if (!duration) return;
@@ -71,6 +72,16 @@ export function Player({ route }: { route: Extract<Route, { name: "player" }> })
       position: Math.floor(position),
       duration: Math.floor(duration),
     });
+    // sync to AniList once per episode after ~90% watched (no-op if not logged in)
+    if (
+      detail?.malId &&
+      position / duration > 0.9 &&
+      pushedRef.current !== ep
+    ) {
+      pushedRef.current = ep;
+      const n = parseInt(ep, 10);
+      if (n) window.ani.alSetProgress(detail.malId, n).catch(() => {});
+    }
   }
 
   useEffect(() => {

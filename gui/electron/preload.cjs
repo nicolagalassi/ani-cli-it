@@ -19,6 +19,21 @@ contextBridge.exposeInMainWorld("ani", {
   settings: () => ipcRenderer.invoke("store:settings"),
   setSetting: (k, v) => ipcRenderer.invoke("store:setSetting", k, v),
 
+  // anilist (public)
+  alByMalId: (idMal) => ipcRenderer.invoke("al:byMalId", idMal),
+  alTrending: () => ipcRenderer.invoke("al:trending"),
+  alPopular: () => ipcRenderer.invoke("al:popular"),
+  alSeasonal: () => ipcRenderer.invoke("al:seasonal"),
+  alSearch: (q) => ipcRenderer.invoke("al:search", q),
+
+  // anilist (account)
+  alLogin: () => ipcRenderer.invoke("al:login"),
+  alLogout: () => ipcRenderer.invoke("al:logout"),
+  alViewer: () => ipcRenderer.invoke("al:viewer"),
+  alUserList: (status) => ipcRenderer.invoke("al:userList", status),
+  alSetProgress: (idMal, progress) =>
+    ipcRenderer.invoke("al:setProgress", idMal, progress),
+
   // misc
   openExternal: (url) => ipcRenderer.invoke("app:openExternal", url),
 });

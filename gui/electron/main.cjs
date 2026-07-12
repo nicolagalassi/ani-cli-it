@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, shell } = require("electron");
 const path = require("path");
 const scraper = require("./scraper.cjs");
 const store = require("./store.cjs");
+const anilist = require("./anilist.cjs");
 
 const isDev = !app.isPackaged && process.env.NODE_ENV !== "production";
 
@@ -48,6 +49,73 @@ ipcMain.handle("store:removeEntry", (_e, slug) => store.removeEntry(slug));
 ipcMain.handle("store:clearHistory", () => store.clearHistory());
 ipcMain.handle("store:settings", () => store.getSettings());
 ipcMain.handle("store:setSetting", (_e, k, v) => store.setSetting(k, v));
+
+// --- IPC: anilist (public) -------------------------------------------------
+ipcMain.handle("al:byMalId", (_e, idMal) => anilist.byMalId(idMal));
+ipcMain.handle("al:trending", () => anilist.trending());
+ipcMain.handle("al:popular", () => anilist.popular());
+ipcMain.handle("al:seasonal", () => anilist.seasonal());
+ipcMain.handle("al:search", (_e, q) => anilist.search(q));
+
+// --- IPC: anilist (account) ------------------------------------------------
+ipcMain.handle("al:viewer", () => anilist.viewer());
+ipcMain.handle("al:userList", (_e, status) => anilist.userList(status));
+ipcMain.handle("al:setProgress", (_e, idMal, progress) =>
+  anilist.setProgress(idMal, progress),
+);
+ipcMain.handle("al:logout", () => {
+  store.setSetting("anilistToken", null);
+  return true;
+});
+
+// OAuth implicit-grant: open AniList authorize in a window, capture the
+// access_token from the redirect URL fragment, store it, return the viewer.
+ipcMain.handle("al:login", async () => {
+  const clientId = store.getSettings().anilistClientId;
+  if (!clientId) throw new Error("NO_CLIENT_ID");
+  const authUrl = `https://anilist.co/api/v2/oauth/authorize?client_id=${encodeURIComponent(
+    clientId,
+  )}&response_type=token`;
+
+  return new Promise((resolve, reject) => {
+    const w = new BrowserWindow({
+      width: 480,
+      height: 720,
+      title: "Accedi ad AniList",
+      autoHideMenuBar: true,
+      webPreferences: { nodeIntegration: false, contextIsolation: true },
+    });
+    let done = false;
+
+    const grab = (url) => {
+      if (done || !url) return;
+      let hash = "";
+      try {
+        hash = new URL(url).hash;
+      } catch {
+        return;
+      }
+      const m = hash.match(/access_token=([^&]+)/);
+      if (m) {
+        done = true;
+        const token = decodeURIComponent(m[1]);
+        store.setSetting("anilistToken", token);
+        try {
+          w.close();
+        } catch {}
+        anilist.viewer().then(resolve).catch(() => resolve(null));
+      }
+    };
+
+    w.webContents.on("will-redirect", (_ev, url) => grab(url));
+    w.webContents.on("will-navigate", (_ev, url) => grab(url));
+    w.webContents.on("did-navigate", (_ev, url) => grab(url));
+    w.on("closed", () => {
+      if (!done) reject(new Error("LOGIN_CANCELLED"));
+    });
+    w.loadURL(authUrl);
+  });
+});
 
 // --- IPC: misc -------------------------------------------------------------
 ipcMain.handle("app:openExternal", (_e, url) => shell.openExternal(url));

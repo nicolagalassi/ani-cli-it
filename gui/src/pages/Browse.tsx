@@ -1,16 +1,22 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNav } from "../App";
 import { Card } from "../components/Card";
 import type { SearchItem, Mode } from "../types";
 
-export function Browse() {
+export function Browse({ initialQuery }: { initialQuery?: string }) {
   const { go } = useNav();
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery ?? "");
   const [mode, setMode] = useState<Mode | "all">("all");
   const [results, setResults] = useState<SearchItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const reqId = useRef(0);
+
+  // auto-search when arriving from Discover with a query
+  useEffect(() => {
+    if (initialQuery && initialQuery.trim()) runSearch(initialQuery, "all");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialQuery]);
 
   async function runSearch(q: string, m: Mode | "all") {
     if (!q.trim()) return;

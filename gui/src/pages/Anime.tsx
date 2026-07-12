@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNav, type Route } from "../App";
-import type { AnimeDetail, HistoryEntry } from "../types";
+import type { AnimeDetail, HistoryEntry, AniListMedia } from "../types";
 
 export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
   const { go, back } = useNav();
   const [detail, setDetail] = useState<AnimeDetail | null>(null);
   const [entry, setEntry] = useState<HistoryEntry | null>(null);
+  const [al, setAl] = useState<AniListMedia | null>(null);
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -13,10 +14,11 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
     let alive = true;
     setLoading(true);
     window.ani.episodes(route.slug).then((d) => {
-      if (alive) {
-        setDetail(d);
-        setLoading(false);
-      }
+      if (!alive) return;
+      setDetail(d);
+      setLoading(false);
+      // enrich with AniList metadata via the MAL id from the play page
+      if (d.malId) window.ani.alByMalId(d.malId).then((m) => alive && setAl(m));
     });
     window.ani.getEntry(route.slug).then((e) => alive && setEntry(e));
     return () => {
@@ -36,8 +38,8 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
       </button>
       <div className="detail">
         <div className="detail-poster">
-          {detail?.poster || route.poster ? (
-            <img src={(detail?.poster || route.poster)!} alt={detail?.title ?? ""} />
+          {detail?.poster || route.poster || al?.coverImage?.large ? (
+            <img src={(detail?.poster || route.poster || al?.coverImage?.large)!} alt={detail?.title ?? ""} />
           ) : (
             <div className="card-noposter big">
               {(route.title ?? "?").slice(0, 1)}
@@ -52,6 +54,9 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
               <span className="pill">{detail.episodes.length} episodi</span>
             )}
             {route.dub && <span className="pill dub">DUB ITA</span>}
+            {al?.averageScore && <span className="pill score">★ {al.averageScore}%</span>}
+            {al?.format && <span className="pill">{al.format}</span>}
+            {al?.seasonYear && <span className="pill">{al.seasonYear}</span>}
             {detail?.malId && (
               <button
                 className="pill link"
@@ -62,6 +67,16 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
                 }
               >
                 MAL ↗
+              </button>
+            )}
+            {al && (
+              <button
+                className="pill link"
+                onClick={() =>
+                  window.ani.openExternal(`https://anilist.co/anime/${al.id}`)
+                }
+              >
+                AniList ↗
               </button>
             )}
           </div>
@@ -86,6 +101,25 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
           )}
         </div>
       </div>
+
+      {al && (al.genres.length > 0 || al.description) && (
+        <div className="synopsis">
+          {al.genres.length > 0 && (
+            <div className="genres">
+              {al.genres.map((g) => (
+                <span key={g} className="genre">
+                  {g}
+                </span>
+              ))}
+            </div>
+          )}
+          {al.description && (
+            <p className="desc">
+              {al.description.replace(/<[^>]+>/g, "").slice(0, 600)}
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="section-head">
         <h2 className="section-title">Episodi</h2>

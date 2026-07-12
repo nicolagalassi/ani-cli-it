@@ -50,6 +50,35 @@ export interface ProgressInput {
   duration?: number;
 }
 
+export interface AniListMedia {
+  id: number;
+  idMal: number | null;
+  title: { romaji: string; english: string | null };
+  averageScore: number | null;
+  episodes: number | null;
+  duration: number | null;
+  format: string | null;
+  status: string | null;
+  season: string | null;
+  seasonYear: number | null;
+  coverImage: { large: string; extraLarge: string; color: string | null };
+  bannerImage: string | null;
+  genres: string[];
+  description: string | null;
+}
+
+export interface AniListViewer {
+  id: number;
+  name: string;
+  avatar: { medium: string } | null;
+}
+
+export interface AniListEntry {
+  progress: number;
+  score: number;
+  media: AniListMedia;
+}
+
 export interface AniAPI {
   search(query: string, mode: Mode | "all"): Promise<SearchItem[]>;
   episodes(slug: string): Promise<AnimeDetail>;
@@ -65,6 +94,20 @@ export interface AniAPI {
   settings(): Promise<Record<string, unknown>>;
   setSetting(k: string, v: unknown): Promise<Record<string, unknown>>;
   openExternal(url: string): Promise<void>;
+
+  // anilist (public)
+  alByMalId(idMal: string | number): Promise<AniListMedia | null>;
+  alTrending(): Promise<AniListMedia[]>;
+  alPopular(): Promise<AniListMedia[]>;
+  alSeasonal(): Promise<AniListMedia[]>;
+  alSearch(q: string): Promise<AniListMedia[]>;
+
+  // anilist (account)
+  alLogin(): Promise<AniListViewer | null>;
+  alLogout(): Promise<boolean>;
+  alViewer(): Promise<AniListViewer | null>;
+  alUserList(status: string): Promise<AniListEntry[]>;
+  alSetProgress(idMal: string | number, progress: number): Promise<unknown>;
 }
 
 declare global {
