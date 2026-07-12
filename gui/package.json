@@ -1,0 +1,30 @@
+{
+  "name": "aniplay-it",
+  "version": "0.1.0",
+  "description": "GUI italiana per ani-cli-it — anime Sub/Dub ITA da AnimeWorld",
+  "author": "nicolagalassi",
+  "license": "GPL-3.0",
+  "main": "electron/main.cjs",
+  "type": "module",
+  "scripts": {
+    "dev:vite": "vite",
+    "dev:electron": "electron .",
+    "dev": "concurrently -k \"npm:dev:vite\" \"wait-on tcp:5173 && npm:dev:electron\"",
+    "build": "vite build",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.0",
+    "electron": "^33.2.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "wait-on": "^8.0.1"
+  }
+}
