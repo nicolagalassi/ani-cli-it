@@ -9,7 +9,7 @@
   "scripts": {
     "dev:vite": "vite",
     "dev:electron": "electron .",
-    "dev": "concurrently -k \"npm:dev:vite\" \"wait-on tcp:5173 && npm:dev:electron\"",
+    "dev": "concurrently -k -n vite,electron \"npm:dev:vite\" \"wait-on tcp:5173 && npm run dev:electron\"",
     "build": "vite build",
     "start": "electron ."
   },
