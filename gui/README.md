@@ -20,9 +20,10 @@ Ispirata ad AniPlay, adattata alla sorgente italiana AnimeWorld.
 AniList è usato su due livelli:
 
 1. **Pubblico (senza login)** — metadati e classifiche. Il collegamento AnimeWorld → AniList avviene tramite l'**ID MyAnimeList** che AnimeWorld espone nella pagina dell'anime (nessun matching per titolo, quindi affidabile): voto, formato, generi, sinossi, copertine in alta risoluzione, pagine "Scopri".
-2. **Account (con login)** — per sincronizzare progresso e liste. Serve un **Client ID** AniList:
-   - Vai su [AniList → Settings → Developer](https://anilist.co/settings/developer), crea un client (tipo *implicit / token*).
-   - Incolla il Client ID in *Impostazioni → Account AniList* e premi **Accedi**: si apre la finestra di login AniList; il token viene salvato localmente.
+2. **Account (con login)** — per sincronizzare progresso e liste:
+   - Vai su [AniList → Settings → Developer](https://anilist.co/settings/developer) e crea un client.
+   - Il **Redirect URL è obbligatorio**: imposta `https://anilist.co/api/v2/oauth/pin` (se lo lasci vuoto, il login fallisce).
+   - Incolla il **Client ID** (il numero) in *Impostazioni → Account AniList* e premi **Accedi**: si apre la finestra di login AniList; il token viene salvato localmente.
    - Da quel momento, guardando un episodio (oltre il ~90%) il progresso viene inviato ad AniList, e la Home mostra la sezione "In visione".
 
 ## Stack

@@ -93,7 +93,7 @@ export function Settings() {
           <>
             <p className="dim">
               Collega il tuo account AniList per sincronizzare il progresso e
-              vedere le tue liste. Serve un <b>Client ID</b>: crealo su AniList in{" "}
+              vedere le tue liste. Crea un client su AniList in{" "}
               <button
                 className="pill link"
                 onClick={() =>
@@ -101,8 +101,10 @@ export function Settings() {
                 }
               >
                 Settings → Developer ↗
-              </button>{" "}
-              (tipo: <code>token</code>/implicit), poi incolla qui il Client ID.
+              </button>
+              , impostando come <b>Redirect URL</b> (obbligatorio):{" "}
+              <code>https://anilist.co/api/v2/oauth/pin</code>. Poi incolla qui il{" "}
+              <b>Client ID</b> (il numero) e premi Accedi.
             </p>
             <div className="searchbar">
               <input

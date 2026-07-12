@@ -87,6 +87,16 @@ ipcMain.handle("al:login", async () => {
     });
     let done = false;
 
+    const resolveViewer = async () => {
+      // token is stored; viewer() can transiently fail right after login, so retry
+      for (let i = 0; i < 3; i++) {
+        const v = await anilist.viewer().catch(() => null);
+        if (v) return resolve(v);
+        await new Promise((r) => setTimeout(r, 600));
+      }
+      resolve(null);
+    };
+
     const grab = (url) => {
       if (done || !url) return;
       let hash = "";
@@ -103,13 +113,14 @@ ipcMain.handle("al:login", async () => {
         try {
           w.close();
         } catch {}
-        anilist.viewer().then(resolve).catch(() => resolve(null));
+        resolveViewer();
       }
     };
 
     w.webContents.on("will-redirect", (_ev, url) => grab(url));
     w.webContents.on("will-navigate", (_ev, url) => grab(url));
     w.webContents.on("did-navigate", (_ev, url) => grab(url));
+    w.webContents.on("did-navigate-in-page", (_ev, url) => grab(url));
     w.on("closed", () => {
       if (!done) reject(new Error("LOGIN_CANCELLED"));
     });
