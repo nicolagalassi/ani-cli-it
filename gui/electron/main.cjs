@@ -3,6 +3,7 @@ const path = require("path");
 const scraper = require("./scraper.cjs");
 const store = require("./store.cjs");
 const anilist = require("./anilist.cjs");
+const aniskip = require("./aniskip.cjs");
 
 const isDev = !app.isPackaged && process.env.NODE_ENV !== "production";
 
@@ -56,6 +57,9 @@ ipcMain.handle("al:trending", () => anilist.trending());
 ipcMain.handle("al:popular", () => anilist.popular());
 ipcMain.handle("al:seasonal", () => anilist.seasonal());
 ipcMain.handle("al:search", (_e, q) => anilist.search(q));
+
+// --- IPC: aniskip ----------------------------------------------------------
+ipcMain.handle("skip:times", (_e, malId, ep) => aniskip.skipTimes(malId, ep));
 
 // --- IPC: anilist (account) ------------------------------------------------
 ipcMain.handle("al:viewer", () => anilist.viewer());

@@ -624,3 +624,85 @@ button {
   margin-top: 8px;
   font-size: 13px;
 }
+
+/* --- remove button on cards --- */
+.card-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(10, 8, 20, 0.75);
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  border: 1px solid var(--border);
+  opacity: 0;
+  transition: opacity 0.12s, background 0.12s;
+  backdrop-filter: blur(4px);
+}
+.card:hover .card-remove {
+  opacity: 1;
+}
+.card-remove:hover {
+  background: #b60c2e;
+  border-color: #b60c2e;
+}
+
+/* --- section reorder controls --- */
+.section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.reorder {
+  display: inline-flex;
+  gap: 3px;
+}
+.reorder-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--dim);
+  font-size: 13px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+}
+.reorder-btn:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--accent);
+}
+.reorder-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* --- skip intro button (player) --- */
+.skip-intro {
+  position: absolute;
+  right: 20px;
+  bottom: 68px;
+  z-index: 5;
+  background: rgba(10, 8, 20, 0.82);
+  color: #fff;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 700;
+  font-size: 14px;
+  backdrop-filter: blur(6px);
+  box-shadow: var(--shadow);
+  transition: background 0.12s;
+}
+.skip-intro:hover {
+  background: var(--accent-2);
+}
+.player-stage {
+  position: relative;
+}

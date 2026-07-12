@@ -34,6 +34,9 @@ contextBridge.exposeInMainWorld("ani", {
   alSetProgress: (idMal, progress) =>
     ipcRenderer.invoke("al:setProgress", idMal, progress),
 
+  // aniskip
+  skipTimes: (malId, ep) => ipcRenderer.invoke("skip:times", malId, ep),
+
   // misc
   openExternal: (url) => ipcRenderer.invoke("app:openExternal", url),
 });

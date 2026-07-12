@@ -79,6 +79,15 @@ export interface AniListEntry {
   media: AniListMedia;
 }
 
+export interface SkipInterval {
+  start: number;
+  end: number;
+}
+export interface SkipTimes {
+  op: SkipInterval | null;
+  ed: SkipInterval | null;
+}
+
 export interface AniAPI {
   search(query: string, mode: Mode | "all"): Promise<SearchItem[]>;
   episodes(slug: string): Promise<AnimeDetail>;
@@ -108,6 +117,9 @@ export interface AniAPI {
   alViewer(): Promise<AniListViewer | null>;
   alUserList(status: string): Promise<AniListEntry[]>;
   alSetProgress(idMal: string | number, progress: number): Promise<unknown>;
+
+  // aniskip
+  skipTimes(malId: string | number, ep: string | number): Promise<SkipTimes | null>;
 }
 
 declare global {

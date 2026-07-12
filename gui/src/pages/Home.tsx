@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useNav } from "../App";
 import { Card } from "../components/Card";
 import type { HistoryEntry, LatestItem, Mode, AniListEntry, AniListViewer } from "../types";
+
+type SectionId = "continue" | "latest" | "anilist";
+const DEFAULT_ORDER: SectionId[] = ["continue", "latest", "anilist"];
 
 export function Home() {
   const { go } = useNav();
@@ -11,12 +14,23 @@ export function Home() {
   const [loading, setLoading] = useState(true);
   const [viewer, setViewer] = useState<AniListViewer | null>(null);
   const [watching, setWatching] = useState<AniListEntry[]>([]);
+  const [order, setOrder] = useState<SectionId[]>(DEFAULT_ORDER);
+
+  function reloadHistory() {
+    window.ani.history().then(setHist);
+  }
 
   useEffect(() => {
-    window.ani.history().then(setHist);
+    reloadHistory();
     window.ani.alViewer().then((v) => {
       setViewer(v);
       if (v) window.ani.alUserList("CURRENT").then(setWatching);
+    });
+    window.ani.settings().then((s) => {
+      const saved = s.homeSectionOrder as SectionId[] | undefined;
+      if (Array.isArray(saved) && saved.length === DEFAULT_ORDER.length) {
+        setOrder(saved);
+      }
     });
   }, []);
 
@@ -34,23 +48,62 @@ export function Home() {
     };
   }, [mode]);
 
-  return (
-    <div className="page">
-      <div className="hero">
-        <span className="hero-kicker">
-          {viewer ? `ANILIST · ${viewer.name.toUpperCase()}` : "ANIMEWORLD · SUB / DUB ITA"}
-        </span>
-        <h1 className="hero-title">La tua dashboard anime.</h1>
-        <p className="hero-sub">
-          Cerca, riprendi e guarda titoli in italiano — senza il disordine.
-        </p>
-      </div>
+  async function removeEntry(slug: string) {
+    await window.ani.removeEntry(slug);
+    reloadHistory();
+  }
 
-      {hist.length > 0 && (
-        <section className="section">
-          <h2 className="section-title">▸ Continua a guardare</h2>
+  // move a section up (-1) or down (+1) and persist the order
+  function move(id: SectionId, dir: -1 | 1) {
+    setOrder((prev) => {
+      const i = prev.indexOf(id);
+      const j = i + dir;
+      if (i < 0 || j < 0 || j >= prev.length) return prev;
+      const next = [...prev];
+      [next[i], next[j]] = [next[j], next[i]];
+      window.ani.setSetting("homeSectionOrder", next);
+      return next;
+    });
+  }
+
+  // header with reorder controls
+  function head(id: SectionId, title: string, extra?: ReactNode) {
+    const i = order.indexOf(id);
+    return (
+      <div className="section-head">
+        <div className="section-title-wrap">
+          <h2 className="section-title">{title}</h2>
+          <span className="reorder">
+            <button
+              className="reorder-btn"
+              title="Sposta su"
+              disabled={i <= 0}
+              onClick={() => move(id, -1)}
+            >
+              ↑
+            </button>
+            <button
+              className="reorder-btn"
+              title="Sposta giù"
+              disabled={i >= order.length - 1}
+              onClick={() => move(id, 1)}
+            >
+              ↓
+            </button>
+          </span>
+        </div>
+        {extra}
+      </div>
+    );
+  }
+
+  const sections: Record<SectionId, () => ReactNode> = {
+    continue: () =>
+      hist.length > 0 ? (
+        <section className="section" key="continue">
+          {head("continue", "▸ Continua a guardare")}
           <div className="row">
-            {hist.slice(0, 8).map((h) => (
+            {hist.slice(0, 12).map((h) => (
               <Card
                 key={h.slug}
                 title={h.title}
@@ -60,15 +113,17 @@ export function Home() {
                 onClick={() =>
                   go({ name: "anime", slug: h.slug, title: h.title, poster: h.poster })
                 }
+                onRemove={() => removeEntry(h.slug)}
               />
             ))}
           </div>
         </section>
-      )}
+      ) : null,
 
-      {viewer && watching.length > 0 && (
-        <section className="section">
-          <h2 className="section-title">▸ In visione su AniList</h2>
+    anilist: () =>
+      viewer && watching.length > 0 ? (
+        <section className="section" key="anilist">
+          {head("anilist", "▸ In visione su AniList")}
           <div className="row">
             {watching.map((e) => (
               <Card
@@ -87,11 +142,13 @@ export function Home() {
             ))}
           </div>
         </section>
-      )}
+      ) : null,
 
-      <section className="section">
-        <div className="section-head">
-          <h2 className="section-title">▸ Ultimi episodi</h2>
+    latest: () => (
+      <section className="section" key="latest">
+        {head(
+          "latest",
+          "▸ Ultimi episodi",
           <div className="tabs">
             <button
               className={"tab" + (mode === "sub" ? " active" : "")}
@@ -105,8 +162,8 @@ export function Home() {
             >
               Dub ITA
             </button>
-          </div>
-        </div>
+          </div>,
+        )}
         {loading ? (
           <div className="loading">Caricamento…</div>
         ) : (
@@ -132,6 +189,22 @@ export function Home() {
           </div>
         )}
       </section>
+    ),
+  };
+
+  return (
+    <div className="page">
+      <div className="hero">
+        <span className="hero-kicker">
+          {viewer ? `ANILIST · ${viewer.name.toUpperCase()}` : "ANIMEWORLD · SUB / DUB ITA"}
+        </span>
+        <h1 className="hero-title">La tua dashboard anime.</h1>
+        <p className="hero-sub">
+          Cerca, riprendi e guarda titoli in italiano — senza il disordine.
+        </p>
+      </div>
+
+      {order.map((id) => sections[id]())}
     </div>
   );
 }

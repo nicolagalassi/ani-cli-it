@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNav, type Route } from "../App";
-import type { AnimeDetail } from "../types";
+import type { AnimeDetail, SkipTimes } from "../types";
 
 export function Player({ route }: { route: Extract<Route, { name: "player" }> }) {
   const { back, go } = useNav();
@@ -13,11 +13,19 @@ export function Player({ route }: { route: Extract<Route, { name: "player" }> })
   const [detail, setDetail] = useState<AnimeDetail | null>(null);
   const [ep, setEp] = useState(route.ep);
   const [token, setToken] = useState(route.token);
+  const [skip, setSkip] = useState<SkipTimes | null>(null);
+  const [curTime, setCurTime] = useState(0);
 
   // load the full episode list (for next/prev + resume position)
   useEffect(() => {
     window.ani.episodes(route.slug).then(setDetail);
   }, [route.slug]);
+
+  // fetch OP/ED skip times for the current episode (needs the MAL id)
+  useEffect(() => {
+    setSkip(null);
+    if (detail?.malId) window.ani.skipTimes(detail.malId, ep).then(setSkip);
+  }, [detail?.malId, ep]);
 
   // resolve the mp4 for the current token
   useEffect(() => {
@@ -101,8 +109,22 @@ export function Player({ route }: { route: Extract<Route, { name: "player" }> })
   function playEp(e: { num: string; token: string }) {
     persist();
     stateRef.current = { position: 0, duration: 0 };
+    setCurTime(0);
     setEp(e.num);
     setToken(e.token);
+  }
+
+  // which skip segment (if any) is active at the current time
+  const active =
+    skip?.op && curTime >= skip.op.start && curTime < skip.op.end
+      ? { label: "Salta intro", end: skip.op.end }
+      : skip?.ed && curTime >= skip.ed.start && curTime < skip.ed.end
+        ? { label: "Salta sigla", end: skip.ed.end }
+        : null;
+
+  function doSkip() {
+    const v = videoRef.current;
+    if (v && active) v.currentTime = active.end + 0.3;
   }
 
   return (
@@ -132,6 +154,7 @@ export function Player({ route }: { route: Extract<Route, { name: "player" }> })
             autoPlay
             onTimeUpdate={(e) => {
               const v = e.currentTarget;
+              setCurTime(v.currentTime);
               if (v.duration)
                 stateRef.current = {
                   position: v.currentTime,
@@ -140,6 +163,11 @@ export function Player({ route }: { route: Extract<Route, { name: "player" }> })
             }}
             onEnded={() => next && playEp(next)}
           />
+        )}
+        {url && active && (
+          <button className="skip-intro" onClick={doSkip}>
+            {active.label} ⏭
+          </button>
         )}
       </div>
 
