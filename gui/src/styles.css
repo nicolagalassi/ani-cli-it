@@ -706,3 +706,115 @@ button {
 .player-stage {
   position: relative;
 }
+
+/* --- custom video control overlay (works in fullscreen) --- */
+.player-stage video {
+  cursor: pointer;
+}
+.player-stage:fullscreen {
+  border-radius: 0;
+  border: 0;
+  aspect-ratio: auto;
+  width: 100vw;
+  height: 100vh;
+}
+.player-stage:fullscreen video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.np-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 6px 12px 10px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0));
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+  z-index: 6;
+}
+.player-stage.ui .np-controls {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.player-stage.ui video {
+  cursor: default;
+}
+.np-seek {
+  position: relative;
+  height: 16px;
+  cursor: pointer;
+}
+.np-seek::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.25);
+}
+.np-seek-fill {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 4px;
+  border-radius: 2px;
+  background: var(--accent);
+  z-index: 1;
+}
+.np-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+.np-btn {
+  background: none;
+  border: 0;
+  color: #fff;
+  font-size: 16px;
+  line-height: 1;
+  padding: 7px 9px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.np-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+}
+.np-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.np-skip85 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent-2);
+}
+.np-skip85:hover {
+  background: var(--accent);
+}
+.np-time {
+  font-size: 12px;
+  color: #cfc8e8;
+  font-variant-numeric: tabular-nums;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+.np-spacer {
+  flex: 1;
+}
+.np-vol {
+  width: 84px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}

@@ -18,6 +18,15 @@ export function Player({ route }: { route: Extract<Route, { name: "player" }> })
   const [token, setToken] = useState(route.token);
   const [skip, setSkip] = useState<SkipTimes | null>(null);
   const [curTime, setCurTime] = useState(0);
+  // custom-controls state (native controls are hidden so buttons work in fullscreen)
+  const stageRef = useRef<HTMLDivElement>(null);
+  const hideTimerRef = useRef<number | undefined>(undefined);
+  const [playing, setPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [muted, setMuted] = useState(false);
+  const [fs, setFs] = useState(false);
+  const [uiVisible, setUiVisible] = useState(true);
 
   // load the full episode list (for next/prev + resume position)
   useEffect(() => {
@@ -121,6 +130,93 @@ export function Player({ route }: { route: Extract<Route, { name: "player" }> })
     };
   }, []);
 
+  // track fullscreen state (fullscreen is requested on the stage wrapper so the
+  // custom controls overlay stays visible)
+  useEffect(() => {
+    const onFs = () => setFs(document.fullscreenElement === stageRef.current);
+    document.addEventListener("fullscreenchange", onFs);
+    return () => document.removeEventListener("fullscreenchange", onFs);
+  }, []);
+
+  // keyboard shortcuts (work in fullscreen): space, f, m, ←/→ 5s, o = +85s
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement) return;
+      const v = videoRef.current;
+      if (!v) return;
+      switch (e.key) {
+        case " ":
+          e.preventDefault();
+          togglePlay();
+          break;
+        case "f":
+          toggleFullscreen();
+          break;
+        case "m":
+          toggleMute();
+          break;
+        case "o":
+          skipBy(SKIP_SECONDS);
+          break;
+        case "ArrowRight":
+          skipBy(5);
+          break;
+        case "ArrowLeft":
+          skipBy(-5);
+          break;
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
+  // auto-hide the controls after inactivity while playing
+  function showUi() {
+    setUiVisible(true);
+    clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = window.setTimeout(() => {
+      if (videoRef.current && !videoRef.current.paused) setUiVisible(false);
+    }, 3000);
+  }
+
+  function togglePlay() {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) v.play().catch(() => {});
+    else v.pause();
+  }
+  function toggleMute() {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = !v.muted;
+    setMuted(v.muted);
+  }
+  function changeVolume(val: number) {
+    const v = videoRef.current;
+    if (!v) return;
+    v.volume = val;
+    v.muted = val === 0;
+    setVolume(val);
+    setMuted(val === 0);
+  }
+  function seekTo(fraction: number) {
+    const v = videoRef.current;
+    if (!v || !v.duration) return;
+    v.currentTime = Math.max(0, Math.min(v.duration, fraction * v.duration));
+  }
+  function toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else stageRef.current?.requestFullscreen().catch(() => {});
+  }
+  function fmtTime(s: number) {
+    if (!isFinite(s) || s < 0) s = 0;
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = Math.floor(s % 60);
+    const mm = h > 0 ? String(m).padStart(2, "0") : String(m);
+    return (h > 0 ? h + ":" : "") + mm + ":" + String(sec).padStart(2, "0");
+  }
+
   const list = detail?.episodes ?? [];
   const idx = list.findIndex((e) => e.num === ep);
   const prev = idx > 0 ? list[idx - 1] : null;
@@ -180,6 +276,8 @@ export function Player({ route }: { route: Extract<Route, { name: "player" }> })
     });
   }
 
+  const progress = duration ? (curTime / duration) * 100 : 0;
+
   return (
     <div className="page player-page">
       <button className="back" onClick={back}>
@@ -190,7 +288,12 @@ export function Player({ route }: { route: Extract<Route, { name: "player" }> })
         <span className="pill">Episodio {ep}</span>
       </div>
 
-      <div className="player-stage">
+      <div
+        ref={stageRef}
+        className={"player-stage" + (uiVisible || !playing ? " ui" : "")}
+        onMouseMove={showUi}
+        onMouseLeave={() => playing && setUiVisible(false)}
+      >
         {error ? (
           <div className="player-error">{error}</div>
         ) : !url ? (
@@ -200,52 +303,103 @@ export function Player({ route }: { route: Extract<Route, { name: "player" }> })
             <div className="dim">Recupero sorgente da AnimeWorld…</div>
           </div>
         ) : (
-          <video
-            ref={videoRef}
-            src={url}
-            controls
-            autoPlay
-            onTimeUpdate={(e) => {
-              const v = e.currentTarget;
-              setCurTime(v.currentTime);
-              if (v.duration) {
-                stateRef.current = {
-                  position: v.currentTime,
-                  duration: v.duration,
-                };
-                if (v.currentTime / v.duration >= 0.75) preloadNext();
-              }
-            }}
-            onEnded={() => next && playEp(next)}
-          />
-        )}
-        {url && active && (
-          <button className="skip-intro" onClick={doSkip}>
-            {active.label} ⏭
-          </button>
+          <>
+            <video
+              ref={videoRef}
+              src={url}
+              autoPlay
+              onClick={togglePlay}
+              onDoubleClick={toggleFullscreen}
+              onPlay={() => {
+                setPlaying(true);
+                showUi();
+              }}
+              onPause={() => setPlaying(false)}
+              onVolumeChange={(e) => {
+                setVolume(e.currentTarget.volume);
+                setMuted(e.currentTarget.muted);
+              }}
+              onLoadedMetadata={(e) => setDuration(e.currentTarget.duration || 0)}
+              onTimeUpdate={(e) => {
+                const v = e.currentTarget;
+                setCurTime(v.currentTime);
+                if (v.duration) {
+                  stateRef.current = {
+                    position: v.currentTime,
+                    duration: v.duration,
+                  };
+                  if (v.currentTime / v.duration >= 0.75) preloadNext();
+                }
+              }}
+              onEnded={() => next && playEp(next)}
+            />
+
+            {/* smart aniskip button (precise OP/ED) */}
+            {active && (
+              <button className="skip-intro" onClick={doSkip}>
+                {active.label} ⏭
+              </button>
+            )}
+
+            {/* custom control overlay (visible in fullscreen too) */}
+            <div className="np-controls">
+              <div
+                className="np-seek"
+                onClick={(e) => {
+                  const r = e.currentTarget.getBoundingClientRect();
+                  seekTo((e.clientX - r.left) / r.width);
+                }}
+              >
+                <div className="np-seek-fill" style={{ width: `${progress}%` }} />
+              </div>
+              <div className="np-bar">
+                <button className="np-btn" onClick={togglePlay} title="Play/Pausa (Spazio)">
+                  {playing ? "⏸" : "▶"}
+                </button>
+                <button className="np-btn" disabled={!prev} onClick={() => prev && playEp(prev)} title="Episodio precedente">
+                  ⏮
+                </button>
+                <button className="np-btn" disabled={!next} onClick={() => next && playEp(next)} title="Episodio successivo">
+                  ⏭
+                </button>
+                <button className="np-btn" onClick={() => skipBy(-SKIP_SECONDS)} title="Indietro 85s">
+                  ⏪
+                </button>
+                <button className="np-btn np-skip85" onClick={() => skipBy(SKIP_SECONDS)} title="Salta intro (+85s)">
+                  +85s
+                </button>
+                <span className="np-time">
+                  {fmtTime(curTime)} / {fmtTime(duration)}
+                </span>
+                <span className="np-spacer" />
+                <button className="np-btn" onClick={toggleMute} title="Muto (M)">
+                  {muted || volume === 0 ? "🔇" : "🔊"}
+                </button>
+                <input
+                  className="np-vol"
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={muted ? 0 : volume}
+                  onChange={(e) => changeVolume(Number(e.target.value))}
+                  title="Volume"
+                />
+                <button className="np-btn" onClick={toggleFullscreen} title="Schermo intero (F)">
+                  {fs ? "⊡" : "⛶"}
+                </button>
+              </div>
+            </div>
+          </>
         )}
       </div>
 
       <div className="player-controls">
-        <button disabled={!prev} onClick={() => prev && playEp(prev)}>
-          ⟨ Precedente
-        </button>
-        <button className="ghost" onClick={() => skipBy(-SKIP_SECONDS)}>
-          ⏪ -85s
-        </button>
-        <button className="ghost" onClick={() => skipBy(SKIP_SECONDS)}>
-          Salta +85s ⏩
-        </button>
         <button
           className="ghost"
-          onClick={() =>
-            go({ name: "anime", slug: route.slug, title: route.title })
-          }
+          onClick={() => go({ name: "anime", slug: route.slug, title: route.title })}
         >
           Tutti gli episodi
-        </button>
-        <button disabled={!next} onClick={() => next && playEp(next)}>
-          Successivo ⟩
         </button>
       </div>
     </div>
