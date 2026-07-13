@@ -4,60 +4,58 @@ Interfaccia grafica desktop per [ani-cli-it](https://github.com/nicolagalassi/an
 
 Ispirata ad AniPlay, adattata alla sorgente italiana AnimeWorld.
 
+## Download (consigliato)
+
+Scarica l'app pronta dall'ultima [**release**](https://github.com/nicolagalassi/ani-cli-it/releases/latest):
+
+| Sistema | File |
+|---|---|
+| **Linux** | `AniPlay-ITA-*.AppImage` |
+| **Windows** | `AniPlay-ITA-Setup-*.exe` (installer) o `AniPlay-ITA-*-x64.exe` (portable) |
+| **macOS (Apple Silicon)** | `AniPlay-ITA-*-arm64.dmg` |
+| **macOS (Intel)** | `AniPlay-ITA-*-x64.dmg` |
+
+Note d'avvio:
+- **Linux**: `chmod +x AniPlay-ITA-*.AppImage && ./AniPlay-ITA-*.AppImage`. Se non parte per il sandbox di Chromium (alcuni kernel Arch/CachyOS): `sudo sysctl -w kernel.unprivileged_userns_clone=1` oppure lancia con `--no-sandbox`.
+- **Windows**: l'app non è firmata, quindi SmartScreen può avvisare → *Ulteriori informazioni → Esegui comunque*.
+- **macOS**: l'app non è firmata → tasto destro sull'app → *Apri* (una volta sola) per superare Gatekeeper.
+
 ## Funzioni
 
 - **Home** — "Continua a guardare" (riprende dall'ultimo episodio, con barra di avanzamento; rimuovi una serie con la × sulla card) + ultimi episodi con tab **Sub ITA / Dub ITA**. Le sezioni sono **riordinabili** con le frecce ↑/↓ (ordine salvato).
 - **Cerca** — ricerca con locandine, filtro Tutti / Sub / Dub.
 - **Scopri** — classifiche da AniList (di tendenza / popolari / stagione).
 - **Pagina anime** — locandina, voto e generi da AniList, sinossi, link MyAnimeList/AniList, lista episodi con filtro e spunta ✓ sugli episodi già visti.
-- **Player integrato** — riproduzione MP4 in-app, precedente/successivo, ripresa dalla posizione salvata, auto-avanzamento, e tasto **"Salta intro / sigla"** (ani-skip).
+- **Player integrato** — riproduzione MP4 in-app, precedente/successivo con **preload** (switch istantaneo), ripresa dalla posizione salvata, auto-avanzamento, tasto **"Salta intro / sigla"** (ani-skip) e skip manuale **±85s**.
 - **Account AniList** *(opzionale)* — login, sezione "In visione" sulla Home, sync automatico del progresso.
 - **Cronologia** persistente su disco.
 - **Impostazioni** — cambio dominio AnimeWorld e login AniList.
 
-## App installabile (consigliato)
+## Compilare da sorgente
 
-Per avere un'app da avviare con un doppio clic (senza `npm run dev`), genera un **AppImage**:
+Dipendenze: Node 18+ e npm. Poi, dentro `gui/`:
 
 ```sh
-cd gui
 npm install
-npm run dist        # compila e crea release/AniPlay-ITA-<versione>.AppImage
+npm run dist        # Linux  → release/AniPlay-ITA-*.AppImage
+npm run dist:win    # Windows → installer + portable (richiede Wine su Linux)
+npm run dist:mac    # macOS   → dmg + zip (solo su macOS)
 ```
 
-Poi:
-
-```sh
-chmod +x release/AniPlay-ITA-*.AppImage
-./release/AniPlay-ITA-*.AppImage
-```
-
-L'AppImage è **autonomo** (contiene Electron + l'app): puoi spostarlo dove vuoi e lanciarlo con doppio clic. Per averlo nel menu applicazioni, usa [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher) oppure crea una voce `.desktop` che punta al file.
-
-> Se al primo avvio l'AppImage non parte per il sandbox di Chromium (alcuni kernel Arch/CachyOS con user namespaces ristretti), abilita gli userns:
-> `sudo sysctl -w kernel.unprivileged_userns_clone=1`
-> oppure lancia con `--no-sandbox`.
+> **Cross-build**: l'AppImage Linux e (con Wine) gli eseguibili Windows si generano da Linux; il pacchetto **macOS va compilato su macOS**. La release ufficiale è costruita in automatico dalla GitHub Action [`gui-release.yml`](../.github/workflows/gui-release.yml) su runner nativi Linux/Windows/macOS: basta pushare un tag `gui-vX.Y.Z`.
 
 ## Sviluppo
 
 ```sh
-cd gui
 npm install
 npm run dev      # avvia Vite (:5173) + Electron con hot-reload
 ```
 
-## Build manuale (senza packaging)
-
-```sh
-npm run build    # compila il renderer in dist/
-npm start        # avvia Electron sul build di produzione
-```
-
 ## Stack
 
-- **Electron** (main process): scraping AnimeWorld + chiamate AniList/aniskip senza restrizioni CORS.
+- **Electron** (main): scraping AnimeWorld + chiamate AniList/aniskip senza restrizioni CORS.
 - **Vite + React + TypeScript** (renderer): interfaccia.
-- **electron-builder**: packaging in AppImage.
+- **electron-builder**: packaging AppImage / exe / dmg.
 - Nessuna dipendenza esterna per scraping/AniList: usa il `fetch` nativo di Node.
 
 ### Integrazione AniList
@@ -69,4 +67,4 @@ npm start        # avvia Electron sul build di produzione
 
 - I video di AnimeWorld sono file MP4 diretti (`Access-Control-Allow-Origin: *`, con Range), quindi si riproducono nativamente in `<video>` con seek — stessa qualità di ani-cli, dentro l'app.
 - Su AnimeWorld Sub ITA e Dub ITA sono voci separate: la distinzione avviene in ricerca e nella home.
-- La cronologia è salvata in `~/.config/aniplay-it/aniplay-it.json` (Linux).
+- La cronologia è salvata in `~/.config/aniplay-it/aniplay-it.json` (Linux), percorso analogo su Windows/macOS (`app.getPath('userData')`).
