@@ -14,7 +14,10 @@
     "build": "vite build",
     "start": "electron .",
     "dist": "vite build && electron-builder --linux AppImage --publish never",
-    "dist:dir": "vite build && electron-builder --linux dir --publish never"
+    "dist:win": "vite build && electron-builder --win nsis portable --publish never",
+    "dist:mac": "vite build && electron-builder --mac dmg zip --publish never",
+    "dist:all": "vite build && electron-builder -mwl --publish never",
+    "dist:dir": "vite build && electron-builder --dir --publish never"
   },
   "build": {
     "appId": "com.nicolagalassi.aniplayit",
@@ -26,6 +29,22 @@
       "category": "AudioVideo",
       "icon": "build/icon.png",
       "artifactName": "AniPlay-ITA-${version}.${ext}"
+    },
+    "win": {
+      "target": ["nsis", "portable"],
+      "icon": "build/icon.png",
+      "artifactName": "AniPlay-ITA-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "AniPlay-ITA-Setup-${version}.${ext}"
+    },
+    "mac": {
+      "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }, { "target": "zip", "arch": ["x64", "arm64"] }],
+      "icon": "build/icon.png",
+      "category": "public.app-category.entertainment",
+      "artifactName": "AniPlay-ITA-${version}-${arch}.${ext}"
     }
   },
   "dependencies": {
