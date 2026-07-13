@@ -14,8 +14,8 @@
     "build": "vite build",
     "start": "electron .",
     "dist": "vite build && electron-builder --linux AppImage --publish never",
-    "dist:win": "vite build && electron-builder --win nsis portable --publish never",
-    "dist:mac": "vite build && electron-builder --mac dmg zip --publish never",
+    "dist:win": "vite build && electron-builder --win --publish never",
+    "dist:mac": "vite build && electron-builder --mac --publish never",
     "dist:all": "vite build && electron-builder -mwl --publish never",
     "dist:dir": "vite build && electron-builder --dir --publish never"
   },
