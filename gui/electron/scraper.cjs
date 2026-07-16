@@ -176,14 +176,35 @@ async function resolveByMal(idMal, titles = []) {
       .trim();
   const wanted = titles.map(norm).filter(Boolean);
 
-  // collect unique candidate slugs from each title variant
+  // strip season/part/ordinal qualifiers: AnimeWorld's search matches the base
+  // title far better than the full "... Season 2 Part 2" string
+  const baseTitle = (t) =>
+    String(t)
+      .replace(/\s*[:\-–—].*$/, "")
+      .replace(/\s+(final\s+)?(season|stagione|cour|part|parte)\s*\d*.*$/i, "")
+      .replace(/\s+\d+(st|nd|rd|th)\s+season.*$/i, "")
+      .replace(/\s+\b(ii|iii|iv|v|vi|vii)\b\s*$/i, "")
+      .replace(/\s+\d+\s*$/, "")
+      .trim();
+
+  // build search queries: full titles + their stripped bases (deduped)
+  const queries = [];
+  const addQ = (q) => {
+    const k = (q || "").trim();
+    if (k && !queries.includes(k)) queries.push(k);
+  };
+  for (const t of titles) {
+    addQ(t);
+    addQ(baseTitle(t));
+  }
+
+  // collect unique candidate slugs from each query
   const seen = new Set();
   const candidates = [];
-  for (const t of titles) {
-    if (!t) continue;
+  for (const q of queries) {
     let items = [];
     try {
-      items = await search(t, "all");
+      items = await search(q, "all");
     } catch {
       items = [];
     }
@@ -193,7 +214,7 @@ async function resolveByMal(idMal, titles = []) {
         candidates.push(it);
       }
     }
-    if (candidates.length >= 20) break;
+    if (candidates.length >= 40) break;
   }
 
   // rank by token overlap against BOTH the display title and the slug (the
