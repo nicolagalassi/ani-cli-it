@@ -6,12 +6,32 @@ const { app } = require("electron");
 const fs = require("fs");
 const path = require("path");
 
-const file = () => path.join(app.getPath("userData"), "aniplay-it.json");
+const STORE = "animix-it.json";
+const file = () => path.join(app.getPath("userData"), STORE);
+
+// pre-rename (AniPlay) store locations, for a one-time history migration
+function legacyFiles() {
+  const appData = app.getPath("appData");
+  return [
+    path.join(appData, "AniPlay ITA", "aniplay-it.json"),
+    path.join(appData, "aniplay-it", "aniplay-it.json"),
+  ];
+}
 
 function load() {
   try {
     return JSON.parse(fs.readFileSync(file(), "utf8"));
   } catch {
+    // migrate history/settings from the old AniPlay store on first launch
+    for (const legacy of legacyFiles()) {
+      try {
+        const data = JSON.parse(fs.readFileSync(legacy, "utf8"));
+        save(data);
+        return data;
+      } catch {
+        // try next candidate
+      }
+    }
     return { history: {}, settings: {} };
   }
 }

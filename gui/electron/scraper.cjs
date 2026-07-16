@@ -98,12 +98,16 @@ async function episodes(slug) {
     /"image":\s*"(https:\/\/img\.animeworld\.ac\/locandine\/[^"]+)"|<meta property="og:image" content="([^"]+)"/,
   );
   const malM = text.match(/myanimelist\.net\/anime\/([0-9]+)/);
+  const scoreM = text.match(/"ratingValue":\s*"?([0-9.]+)"?/);
+  const votesM = text.match(/"ratingCount":\s*"?([0-9]+)"?/);
   const dub = /\(ITA\)|data-name="dub"/.test(slug) || /class="dub"/.test(text);
   return {
     slug,
     title: titleM ? decodeEntities(titleM[1].trim()) : slug,
     poster: posterM ? posterM[1] || posterM[2] : null,
     malId: malM ? malM[1] : null,
+    awScore: scoreM ? parseFloat(scoreM[1]) : null,
+    awVotes: votesM ? parseInt(votesM[1], 10) : null,
     episodes,
   };
 }

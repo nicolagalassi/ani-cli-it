@@ -1,6 +1,6 @@
 {
-  "name": "aniplay-it",
-  "version": "0.2.1",
+  "name": "animix-it",
+  "version": "0.3.0",
   "description": "GUI italiana per ani-cli-it — anime Sub/Dub ITA da AnimeWorld",
   "author": "nicolagalassi",
   "license": "GPL-3.0",
@@ -20,31 +20,31 @@
     "dist:dir": "vite build && electron-builder --dir --publish never"
   },
   "build": {
-    "appId": "com.nicolagalassi.aniplayit",
-    "productName": "AniPlay ITA",
+    "appId": "com.nicolagalassi.animix",
+    "productName": "Animix ITA",
     "directories": { "output": "release", "buildResources": "build" },
     "files": ["dist/**", "electron/**", "package.json"],
     "linux": {
       "target": ["AppImage"],
       "category": "AudioVideo",
       "icon": "build/icon.png",
-      "artifactName": "AniPlay-ITA-${version}.${ext}"
+      "artifactName": "Animix-ITA-${version}.${ext}"
     },
     "win": {
       "target": ["nsis", "portable"],
       "icon": "build/icon.png",
-      "artifactName": "AniPlay-ITA-${version}-${arch}.${ext}"
+      "artifactName": "Animix-ITA-${version}-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "artifactName": "AniPlay-ITA-Setup-${version}.${ext}"
+      "artifactName": "Animix-ITA-Setup-${version}.${ext}"
     },
     "mac": {
       "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }, { "target": "zip", "arch": ["x64", "arm64"] }],
       "icon": "build/icon.png",
       "category": "public.app-category.entertainment",
-      "artifactName": "AniPlay-ITA-${version}-${arch}.${ext}"
+      "artifactName": "Animix-ITA-${version}-${arch}.${ext}"
     }
   },
   "dependencies": {

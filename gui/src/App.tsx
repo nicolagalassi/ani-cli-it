@@ -49,7 +49,7 @@ export function App() {
       <div className="app">
         <header className="topbar">
           <div className="brand">
-            <span className="logo">AniPlay</span>
+            <span className="logo">Animix</span>
             <span className="brand-tag">ITA</span>
             <span className="brand-sub">senza il disordine</span>
           </div>

@@ -124,7 +124,7 @@ export function Settings() {
       <section className="setting">
         <h2 className="section-title">Info</h2>
         <p className="dim">
-          AniPlay ITA — interfaccia per ani-cli-it. Contenuti da AnimeWorld
+          Animix ITA — interfaccia per ani-cli-it. Contenuti da AnimeWorld
           (Sub/Dub ITA). I video vengono riprodotti direttamente nell'app.
         </p>
         <button

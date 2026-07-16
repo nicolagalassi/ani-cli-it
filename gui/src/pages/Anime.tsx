@@ -55,6 +55,18 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
             )}
             {route.dub && <span className="pill dub">DUB ITA</span>}
             {al?.averageScore && <span className="pill score">★ {al.averageScore}%</span>}
+            {detail?.awScore != null && (
+              <span
+                className="pill score aw"
+                title={
+                  detail.awVotes
+                    ? `Voto AnimeWorld — ${detail.awVotes.toLocaleString("it-IT")} voti`
+                    : "Voto AnimeWorld"
+                }
+              >
+                AW ★ {detail.awScore.toFixed(2)}
+              </span>
+            )}
             {al?.format && <span className="pill">{al.format}</span>}
             {al?.seasonYear && <span className="pill">{al.seasonYear}</span>}
             {detail?.malId && (

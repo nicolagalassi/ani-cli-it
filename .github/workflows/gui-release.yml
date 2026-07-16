@@ -1,4 +1,4 @@
-name: Build AniPlay ITA (GUI)
+name: Build Animix ITA (GUI)
 
 # Builds the desktop app for Linux, Windows and macOS on native runners and
 # attaches the installers to a GitHub Release.
@@ -45,7 +45,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: aniplay-${{ matrix.os }}
+          name: animix-${{ matrix.os }}
           path: |
             gui/release/*.AppImage
             gui/release/*.exe

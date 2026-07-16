@@ -574,6 +574,10 @@ button {
   color: #ffd76e;
   border-color: #6a5a2a;
 }
+.pill.score.aw {
+  color: #7fe3c0;
+  border-color: #2c5a4c;
+}
 .synopsis {
   background: var(--panel);
   border: 1px solid var(--border);

@@ -15,6 +15,8 @@ export interface AnimeDetail {
   title: string;
   poster: string | null;
   malId: string | null;
+  awScore: number | null;
+  awVotes: number | null;
   episodes: Episode[];
 }
 

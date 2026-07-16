@@ -1,4 +1,4 @@
-# AniPlay ITA
+# Animix ITA
 
 Interfaccia grafica desktop per [ani-cli-it](https://github.com/nicolagalassi/ani-cli-it) — cerca e guarda anime **Sub ITA** e **Doppiaggio ITA** da AnimeWorld, con i video riprodotti **dentro l'app**.
 
@@ -10,13 +10,13 @@ Scarica l'app pronta dall'ultima [**release**](https://github.com/nicolagalassi/
 
 | Sistema | File |
 |---|---|
-| **Linux** | `AniPlay-ITA-*.AppImage` |
-| **Windows** | `AniPlay-ITA-Setup-*.exe` (installer) o `AniPlay-ITA-*-x64.exe` (portable) |
-| **macOS (Apple Silicon)** | `AniPlay-ITA-*-arm64.dmg` |
-| **macOS (Intel)** | `AniPlay-ITA-*-x64.dmg` |
+| **Linux** | `Animix-ITA-*.AppImage` |
+| **Windows** | `Animix-ITA-Setup-*.exe` (installer) o `Animix-ITA-*-x64.exe` (portable) |
+| **macOS (Apple Silicon)** | `Animix-ITA-*-arm64.dmg` |
+| **macOS (Intel)** | `Animix-ITA-*-x64.dmg` |
 
 Note d'avvio:
-- **Linux**: `chmod +x AniPlay-ITA-*.AppImage && ./AniPlay-ITA-*.AppImage`. Se non parte per il sandbox di Chromium (alcuni kernel Arch/CachyOS): `sudo sysctl -w kernel.unprivileged_userns_clone=1` oppure lancia con `--no-sandbox`.
+- **Linux**: `chmod +x Animix-ITA-*.AppImage && ./Animix-ITA-*.AppImage`. Se non parte per il sandbox di Chromium (alcuni kernel Arch/CachyOS): `sudo sysctl -w kernel.unprivileged_userns_clone=1` oppure lancia con `--no-sandbox`.
 - **Windows**: l'app non è firmata, quindi SmartScreen può avvisare → *Ulteriori informazioni → Esegui comunque*.
 - **macOS**: l'app non è firmata → tasto destro sull'app → *Apri* (una volta sola) per superare Gatekeeper.
 
@@ -25,8 +25,8 @@ Note d'avvio:
 - **Home** — "Continua a guardare" (riprende dall'ultimo episodio, con barra di avanzamento; rimuovi una serie con la × sulla card) + ultimi episodi con tab **Sub ITA / Dub ITA**. Le sezioni sono **riordinabili** con le frecce ↑/↓ (ordine salvato).
 - **Cerca** — ricerca con locandine, filtro Tutti / Sub / Dub.
 - **Scopri** — classifiche da AniList (di tendenza / popolari / stagione).
-- **Pagina anime** — locandina, voto e generi da AniList, sinossi, link MyAnimeList/AniList, lista episodi con filtro e spunta ✓ sugli episodi già visti.
-- **Player integrato** — riproduzione MP4 in-app, precedente/successivo con **preload** (switch istantaneo), ripresa dalla posizione salvata, auto-avanzamento, tasto **"Salta intro / sigla"** (ani-skip) e skip manuale **±85s**.
+- **Pagina anime** — locandina, voto **AnimeWorld** e **AniList**, generi, sinossi, link MyAnimeList/AniList, lista episodi con filtro e spunta ✓ sugli episodi già visti.
+- **Player integrato** — riproduzione MP4 in-app con barra controlli custom (funziona anche a schermo intero), precedente/successivo con **preload** (switch istantaneo), ripresa dalla posizione salvata, auto-avanzamento, **"Salta intro"** (ani-skip) che a fine episodio diventa **"Prossimo episodio"**, e skip manuale **±85s**.
 - **Account AniList** *(opzionale)* — login, sezione "In visione" sulla Home, sync automatico del progresso.
 - **Cronologia** persistente su disco.
 - **Impostazioni** — cambio dominio AnimeWorld e login AniList.
@@ -37,7 +37,7 @@ Dipendenze: Node 18+ e npm. Poi, dentro `gui/`:
 
 ```sh
 npm install
-npm run dist        # Linux  → release/AniPlay-ITA-*.AppImage
+npm run dist        # Linux  → release/Animix-ITA-*.AppImage
 npm run dist:win    # Windows → installer + portable (richiede Wine su Linux)
 npm run dist:mac    # macOS   → dmg + zip (solo su macOS)
 ```
@@ -67,4 +67,4 @@ npm run dev      # avvia Vite (:5173) + Electron con hot-reload
 
 - I video di AnimeWorld sono file MP4 diretti (`Access-Control-Allow-Origin: *`, con Range), quindi si riproducono nativamente in `<video>` con seek — stessa qualità di ani-cli, dentro l'app.
 - Su AnimeWorld Sub ITA e Dub ITA sono voci separate: la distinzione avviene in ricerca e nella home.
-- La cronologia è salvata in `~/.config/aniplay-it/aniplay-it.json` (Linux), percorso analogo su Windows/macOS (`app.getPath('userData')`).
+- La cronologia è salvata in `~/.config/animix-it/animix-it.json` (Linux), percorso analogo su Windows/macOS (`app.getPath('userData')`). Al primo avvio dopo la rinomina la cronologia del vecchio AniPlay viene migrata automaticamente.

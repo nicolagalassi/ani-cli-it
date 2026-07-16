@@ -15,7 +15,7 @@ function createWindow() {
     minHeight: 600,
     backgroundColor: "#0e0b1a",
     autoHideMenuBar: true,
-    title: "AniPlay ITA",
+    title: "Animix ITA",
     icon: path.join(__dirname, "..", "build", "icon.png"),
     webPreferences: {
       preload: path.join(__dirname, "preload.cjs"),
