@@ -2,6 +2,29 @@ import { useEffect, useRef, useState } from "react";
 import { useNav, type Route } from "../App";
 import type { AnimeDetail, SkipTimes } from "../types";
 
+// Material-style monochrome icons (inherit currentColor)
+const ICONS: Record<string, string> = {
+  play: "M8 5v14l11-7z",
+  pause: "M6 19h4V5H6v14zm8-14v14h4V5h-4z",
+  prev: "M6 6h2v12H6zm3.5 6 8.5 6V6z",
+  next: "M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z",
+  rewind: "M11 18V6l-8.5 6 8.5 6zm.5-6 8.5 6V6l-8.5 6z",
+  forward: "M4 18l8.5-6L4 6v12zm9-12v12l8.5-6-8.5-6z",
+  volume:
+    "M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z",
+  muted:
+    "M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73 4.27 3zM12 4 9.91 6.09 12 8.18V4z",
+  fsEnter: "M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z",
+  fsExit: "M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z",
+};
+
+function Icon({ name }: { name: string }) {
+  return (
+    <svg className="np-ico" viewBox="0 0 24 24" aria-hidden="true">
+      <path d={ICONS[name]} />
+    </svg>
+  );
+}
 export function Player({ route }: { route: Extract<Route, { name: "player" }> }) {
   const { back, go } = useNav();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -230,17 +253,29 @@ export function Player({ route }: { route: Extract<Route, { name: "player" }> })
     setToken(e.token);
   }
 
-  // which skip segment (if any) is active at the current time
-  const active =
-    skip?.op && curTime >= skip.op.start && curTime < skip.op.end
-      ? { label: "Salta intro", end: skip.op.end }
-      : skip?.ed && curTime >= skip.ed.start && curTime < skip.ed.end
-        ? { label: "Salta sigla", end: skip.ed.end }
+  // contextual overlay button: intro -> skip OP; outro -> go to next episode (Netflix-style)
+  const opActive =
+    !!skip?.op && curTime >= skip.op.start && curTime < skip.op.end;
+  const edActive =
+    !!skip?.ed && curTime >= skip.ed.start && curTime < skip.ed.end;
+  const overlayAction = opActive
+    ? { kind: "intro" as const, label: "Salta intro" }
+    : edActive && next
+      ? { kind: "next" as const, label: "Prossimo episodio" }
+      : edActive
+        ? { kind: "outro" as const, label: "Salta sigla" }
         : null;
 
-  function doSkip() {
+  function doOverlay() {
+    if (!overlayAction) return;
+    if (overlayAction.kind === "next" && next) {
+      playEp(next);
+      return;
+    }
     const v = videoRef.current;
-    if (v && active) v.currentTime = active.end + 0.3;
+    if (!v) return;
+    if (overlayAction.kind === "intro" && skip?.op) v.currentTime = skip.op.end + 0.3;
+    else if (overlayAction.kind === "outro" && skip?.ed) v.currentTime = skip.ed.end + 0.3;
   }
 
   // manual fixed skip (like the AnimeWorld Better Player extension: O/B keys)
@@ -334,10 +369,14 @@ export function Player({ route }: { route: Extract<Route, { name: "player" }> })
               onEnded={() => next && playEp(next)}
             />
 
-            {/* smart aniskip button (precise OP/ED) */}
-            {active && (
-              <button className="skip-intro" onClick={doSkip}>
-                {active.label} ⏭
+            {/* contextual overlay: skip intro / go to next episode (Netflix-style) */}
+            {overlayAction && (
+              <button
+                className={"overlay-action" + (overlayAction.kind === "next" ? " is-next" : "")}
+                onClick={doOverlay}
+              >
+                {overlayAction.label}
+                <Icon name={overlayAction.kind === "next" ? "next" : "forward"} />
               </button>
             )}
 
@@ -353,27 +392,28 @@ export function Player({ route }: { route: Extract<Route, { name: "player" }> })
                 <div className="np-seek-fill" style={{ width: `${progress}%` }} />
               </div>
               <div className="np-bar">
-                <button className="np-btn" onClick={togglePlay} title="Play/Pausa (Spazio)">
-                  {playing ? "⏸" : "▶"}
+                <button className="np-btn" onClick={togglePlay} title="Play / Pausa (Spazio)">
+                  <Icon name={playing ? "pause" : "play"} />
                 </button>
                 <button className="np-btn" disabled={!prev} onClick={() => prev && playEp(prev)} title="Episodio precedente">
-                  ⏮
+                  <Icon name="prev" />
                 </button>
                 <button className="np-btn" disabled={!next} onClick={() => next && playEp(next)} title="Episodio successivo">
-                  ⏭
+                  <Icon name="next" />
                 </button>
-                <button className="np-btn" onClick={() => skipBy(-SKIP_SECONDS)} title="Indietro 85s">
-                  ⏪
+                <span className="np-sep" />
+                <button className="np-btn" onClick={() => skipBy(-SKIP_SECONDS)} title="Torna indietro 85s">
+                  <Icon name="rewind" />
                 </button>
-                <button className="np-btn np-skip85" onClick={() => skipBy(SKIP_SECONDS)} title="Salta intro (+85s)">
-                  +85s
+                <button className="np-btn np-skip" onClick={() => skipBy(SKIP_SECONDS)} title="Salta intro (+85s)">
+                  <Icon name="forward" />
                 </button>
                 <span className="np-time">
                   {fmtTime(curTime)} / {fmtTime(duration)}
                 </span>
                 <span className="np-spacer" />
                 <button className="np-btn" onClick={toggleMute} title="Muto (M)">
-                  {muted || volume === 0 ? "🔇" : "🔊"}
+                  <Icon name={muted || volume === 0 ? "muted" : "volume"} />
                 </button>
                 <input
                   className="np-vol"
@@ -386,7 +426,7 @@ export function Player({ route }: { route: Extract<Route, { name: "player" }> })
                   title="Volume"
                 />
                 <button className="np-btn" onClick={toggleFullscreen} title="Schermo intero (F)">
-                  {fs ? "⊡" : "⛶"}
+                  <Icon name={fs ? "fsExit" : "fsEnter"} />
                 </button>
               </div>
             </div>
