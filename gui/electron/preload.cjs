@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld("ani", {
   search: (query, mode) => ipcRenderer.invoke("ani:search", query, mode),
   episodes: (slug) => ipcRenderer.invoke("ani:episodes", slug),
   episodeUrl: (token) => ipcRenderer.invoke("ani:episodeUrl", token),
+  info: (slug) => ipcRenderer.invoke("ani:info", slug),
   latest: (mode) => ipcRenderer.invoke("ani:latest", mode),
   getBase: () => ipcRenderer.invoke("ani:base"),
   setBase: (b) => ipcRenderer.invoke("ani:setBase", b),
@@ -39,4 +40,15 @@ contextBridge.exposeInMainWorld("ani", {
 
   // misc
   openExternal: (url) => ipcRenderer.invoke("app:openExternal", url),
+
+  // downloads
+  downloadEpisode: (req) => ipcRenderer.invoke("dl:episode", req),
+  cancelDownload: (token) => ipcRenderer.invoke("dl:cancel", token),
+  downloadedEps: (title) => ipcRenderer.invoke("dl:downloaded", title),
+  openDownloads: () => ipcRenderer.invoke("dl:open"),
+  onDownload: (cb) => {
+    const h = (_e, data) => cb(data);
+    ipcRenderer.on("download:event", h);
+    return () => ipcRenderer.removeListener("download:event", h);
+  },
 });

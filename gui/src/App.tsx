@@ -51,7 +51,7 @@ export function App() {
           <div className="brand">
             <span className="logo">Animix</span>
             <span className="brand-tag">ITA</span>
-            <span className="brand-sub">senza il disordine</span>
+            <span className="brand-sub">anime Sub e Dub ITA</span>
           </div>
           <nav className="nav">
             {NAV.map((n) => (

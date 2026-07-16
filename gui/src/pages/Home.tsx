@@ -1,6 +1,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useNav } from "../App";
 import { Card } from "../components/Card";
+import { ContinueCard } from "../components/ContinueCard";
+import { LatestCard } from "../components/LatestCard";
 import type { HistoryEntry, LatestItem, Mode, AniListEntry, AniListViewer } from "../types";
 
 type SectionId = "continue" | "latest" | "anilist";
@@ -102,9 +104,9 @@ export function Home() {
       hist.length > 0 ? (
         <section className="section" key="continue">
           {head("continue", "▸ Continua a guardare")}
-          <div className="row">
-            {hist.slice(0, 12).map((h) => (
-              <Card
+          <div className="ccard-list">
+            {hist.slice(0, 24).map((h) => (
+              <ContinueCard
                 key={h.slug}
                 title={h.title}
                 poster={h.poster}
@@ -169,11 +171,9 @@ export function Home() {
         ) : (
           <div className="grid">
             {latest.map((l) => (
-              <Card
+              <LatestCard
                 key={`${l.slug}#${l.ep}`}
-                title={l.title}
-                poster={l.poster}
-                badge={`Ep ${l.ep}`}
+                item={l}
                 onClick={() =>
                   go({
                     name: "player",
@@ -200,7 +200,7 @@ export function Home() {
         </span>
         <h1 className="hero-title">La tua dashboard anime.</h1>
         <p className="hero-sub">
-          Cerca, riprendi e guarda titoli in italiano — senza il disordine.
+          Cerca, riprendi e guarda anime in italiano, tutto in un posto.
         </p>
       </div>
 

@@ -451,6 +451,35 @@ button {
   color: var(--accent);
   font-weight: 800;
 }
+.ep-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ep-dl {
+  min-width: 30px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--dim);
+  padding: 2px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.12s, background 0.12s;
+}
+.ep-dl:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+}
+.ep-dl.active {
+  color: var(--accent);
+}
+.ep-dl.done {
+  color: #7fe3c0;
+}
+.ep-dl.err {
+  color: #ff8a8a;
+}
 
 /* --- player --- */
 .player-page {
@@ -849,4 +878,153 @@ button {
   width: 84px;
   accent-color: var(--accent);
   cursor: pointer;
+}
+
+/* --- compact "continua a guardare" cards --- */
+.ccard-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 8px;
+}
+.ccard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text);
+  position: relative;
+  transition: border-color 0.12s, background 0.12s;
+}
+.ccard:hover {
+  border-color: var(--accent);
+  background: var(--panel-2);
+}
+.ccard-poster {
+  position: relative;
+  width: 44px;
+  height: 62px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--panel-2);
+}
+.ccard-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.ccard-poster .card-noposter {
+  height: 100%;
+  font-size: 20px;
+}
+.ccard-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.25);
+}
+.ccard-progress span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+.ccard-body {
+  min-width: 0;
+  flex: 1;
+}
+.ccard-title {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ccard-sub {
+  font-size: 11px;
+  color: var(--dim);
+  margin-top: 2px;
+}
+.ccard-remove {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  line-height: 16px;
+  text-align: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.ccard:hover .ccard-remove {
+  opacity: 1;
+}
+
+/* --- latest-episode hover info popover --- */
+.hovercard {
+  position: relative;
+}
+.hovercard-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 260px;
+  max-width: 80vw;
+  z-index: 30;
+  background: var(--panel-2);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: var(--shadow);
+  pointer-events: none;
+}
+.hovercard-pop.left {
+  left: 0;
+  transform: none;
+}
+.hovercard-pop.right {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+.hovercard-loading {
+  color: var(--dim);
+  font-size: 13px;
+}
+.hovercard-title {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+.hovercard-scores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.hovercard-genres {
+  font-size: 11px;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.hovercard-syn {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--dim);
+  margin: 0;
+}
+.hovercard-syn.dim {
+  font-style: italic;
 }

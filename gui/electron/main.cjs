@@ -4,6 +4,7 @@ const scraper = require("./scraper.cjs");
 const store = require("./store.cjs");
 const anilist = require("./anilist.cjs");
 const aniskip = require("./aniskip.cjs");
+const downloader = require("./downloader.cjs");
 
 const isDev = !app.isPackaged && process.env.NODE_ENV !== "production";
 
@@ -36,11 +37,45 @@ ipcMain.handle("ani:search", (_e, query, mode) => scraper.search(query, mode));
 ipcMain.handle("ani:episodes", (_e, slug) => scraper.episodes(slug));
 ipcMain.handle("ani:episodeUrl", (_e, token) => scraper.episodeUrl(token));
 ipcMain.handle("ani:latest", (_e, mode) => scraper.latest(mode));
+
+// compact anime info for hover cards (AnimeWorld rating + AniList score/synopsis)
+const infoCache = new Map();
+ipcMain.handle("ani:info", async (_e, slug) => {
+  if (infoCache.has(slug)) return infoCache.get(slug);
+  const d = await scraper.episodes(slug);
+  const al = d.malId ? await anilist.byMalId(d.malId) : null;
+  const info = {
+    title: d.title,
+    awScore: d.awScore,
+    awVotes: d.awVotes,
+    anilistScore: al ? al.averageScore : null,
+    genres: al && al.genres ? al.genres.slice(0, 4) : [],
+    synopsis:
+      al && al.description
+        ? al.description.replace(/<[^>]+>/g, "").trim().slice(0, 280)
+        : null,
+    episodes: d.episodes.length,
+  };
+  infoCache.set(slug, info);
+  return info;
+});
 ipcMain.handle("ani:base", () => scraper.getBase());
 ipcMain.handle("ani:setBase", (_e, b) => {
   scraper.setBase(b);
   store.setSetting("base", b);
   return scraper.getBase();
+});
+
+// --- IPC: downloads --------------------------------------------------------
+ipcMain.handle("dl:episode", (e, req) =>
+  downloader.downloadEpisode(BrowserWindow.fromWebContents(e.sender), req),
+);
+ipcMain.handle("dl:cancel", (_e, token) => downloader.cancelDownload(token));
+ipcMain.handle("dl:downloaded", (_e, title) => downloader.downloadedEps(title));
+ipcMain.handle("dl:open", () => {
+  const dir = downloader.openDownloads();
+  shell.openPath(dir);
+  return dir;
 });
 
 // --- IPC: history / store --------------------------------------------------

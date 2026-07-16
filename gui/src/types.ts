@@ -90,10 +90,40 @@ export interface SkipTimes {
   ed: SkipInterval | null;
 }
 
+export interface AnimeInfo {
+  title: string;
+  awScore: number | null;
+  awVotes: number | null;
+  anilistScore: number | null;
+  genres: string[];
+  synopsis: string | null;
+  episodes: number;
+}
+
+export interface DownloadReq {
+  slug: string;
+  title: string;
+  ep: string;
+  token: string;
+}
+
+export interface DownloadMsg {
+  type: "progress" | "done" | "error" | "cancelled";
+  token: string;
+  slug?: string;
+  ep?: string;
+  dest?: string;
+  received?: number;
+  total?: number;
+  pct?: number;
+  message?: string;
+}
+
 export interface AniAPI {
   search(query: string, mode: Mode | "all"): Promise<SearchItem[]>;
   episodes(slug: string): Promise<AnimeDetail>;
   episodeUrl(token: string): Promise<string | null>;
+  info(slug: string): Promise<AnimeInfo>;
   latest(mode: Mode): Promise<LatestItem[]>;
   getBase(): Promise<string>;
   setBase(b: string): Promise<string>;
@@ -122,6 +152,13 @@ export interface AniAPI {
 
   // aniskip
   skipTimes(malId: string | number, ep: string | number): Promise<SkipTimes | null>;
+
+  // downloads
+  downloadEpisode(req: DownloadReq): Promise<{ dest?: string; cancelled?: boolean; already?: boolean }>;
+  cancelDownload(token: string): Promise<boolean>;
+  downloadedEps(title: string): Promise<string[]>;
+  openDownloads(): Promise<string>;
+  onDownload(cb: (msg: DownloadMsg) => void): () => void;
 }
 
 declare global {
