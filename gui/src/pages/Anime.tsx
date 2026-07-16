@@ -1,4 +1,4 @@
-import { useEffect, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { useNav, type Route } from "../App";
 import type { AnimeDetail, HistoryEntry, AniListMedia, Episode } from "../types";
 
@@ -11,6 +11,13 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
   const [loading, setLoading] = useState(true);
   const [dled, setDled] = useState<Set<string>>(new Set());
   const [prog, setProg] = useState<Record<string, number>>({});
+  const [rangeFrom, setRangeFrom] = useState("");
+  const [rangeTo, setRangeTo] = useState("");
+  const [bulk, setBulk] = useState<{ done: number; total: number } | null>(null);
+  const bulkRef = useRef<{ cancel: boolean; token: string | null }>({
+    cancel: false,
+    token: null,
+  });
 
   useEffect(() => {
     let alive = true;
@@ -90,6 +97,47 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
       ep: e.num,
       token: e.token,
     });
+  }
+
+  // download every episode in [from, to] (empty bound = open-ended) sequentially
+  async function downloadRange() {
+    if (!detail || bulk) return;
+    const from = parseFloat(rangeFrom);
+    const to = parseFloat(rangeTo);
+    const list = detail.episodes.filter((e) => {
+      const n = parseFloat(e.num);
+      if (isNaN(n)) return false;
+      if (!isNaN(from) && n < from) return false;
+      if (!isNaN(to) && n > to) return false;
+      return !dled.has(String(n));
+    });
+    if (list.length === 0) return;
+    bulkRef.current = { cancel: false, token: null };
+    setBulk({ done: 0, total: list.length });
+    for (let i = 0; i < list.length; i++) {
+      if (bulkRef.current.cancel) break;
+      const e = list[i];
+      bulkRef.current.token = e.token;
+      setProg((m) => ({ ...m, [e.token]: 0 }));
+      try {
+        await window.ani.downloadEpisode({
+          slug: route.slug,
+          title: detail.title,
+          ep: e.num,
+          token: e.token,
+        });
+      } catch {
+        // skip failed episode, keep going
+      }
+      setBulk((b) => (b ? { ...b, done: i + 1 } : null));
+    }
+    bulkRef.current.token = null;
+    setBulk(null);
+  }
+
+  function cancelBulk() {
+    bulkRef.current.cancel = true;
+    if (bulkRef.current.token) window.ani.cancelDownload(bulkRef.current.token);
   }
 
   return (
@@ -209,6 +257,44 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         />
+      </div>
+
+      <div className="dl-range">
+        {bulk ? (
+          <>
+            <span className="dl-range-status">
+              Scaricando {bulk.done}/{bulk.total}…
+            </span>
+            <button className="pill link" onClick={cancelBulk}>
+              Interrompi
+            </button>
+          </>
+        ) : (
+          <>
+            <span className="dl-range-label">Scarica episodi</span>
+            <input
+              className="dl-range-input"
+              type="number"
+              min={1}
+              placeholder="da"
+              value={rangeFrom}
+              onChange={(e) => setRangeFrom(e.target.value)}
+            />
+            <span className="dim">–</span>
+            <input
+              className="dl-range-input"
+              type="number"
+              min={1}
+              placeholder="a"
+              value={rangeTo}
+              onChange={(e) => setRangeTo(e.target.value)}
+            />
+            <button className="btn-small" onClick={downloadRange}>
+              ⬇ Scarica
+            </button>
+            <span className="dl-range-hint">vuoto = tutti</span>
+          </>
+        )}
       </div>
 
       {loading ? (
