@@ -23,7 +23,7 @@
     "appId": "com.nicolagalassi.animix",
     "productName": "Animix ITA",
     "directories": { "output": "release", "buildResources": "build" },
-    "files": ["dist/**", "electron/**", "package.json"],
+    "files": ["dist/**", "electron/**", "build/icon.png", "package.json"],
     "linux": {
       "target": ["AppImage"],
       "category": "AudioVideo",
