@@ -11,7 +11,7 @@ export type Route =
   | { name: "home" }
   | { name: "browse"; query?: string }
   | { name: "discover" }
-  | { name: "anime"; slug: string; title?: string; dub?: boolean; poster?: string | null }
+  | { name: "anime"; slug?: string; malId?: number | null; titles?: string[]; title?: string; dub?: boolean; poster?: string | null }
   | { name: "player"; slug: string; title: string; token: string; ep: string; poster?: string | null }
   | { name: "history" }
   | { name: "settings" };

@@ -136,8 +136,13 @@ export function Home() {
                 sub={`Ep ${e.progress}${e.media.episodes ? " / " + e.media.episodes : ""}`}
                 onClick={() =>
                   go({
-                    name: "browse",
-                    query: e.media.title.romaji || e.media.title.english || "",
+                    name: "anime",
+                    malId: e.media.idMal,
+                    titles: [e.media.title.english, e.media.title.romaji].filter(
+                      (t): t is string => !!t,
+                    ),
+                    title: e.media.title.english || e.media.title.romaji,
+                    poster: e.media.coverImage?.large || null,
                   })
                 }
               />

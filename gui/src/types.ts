@@ -124,6 +124,7 @@ export interface AniAPI {
   episodes(slug: string): Promise<AnimeDetail>;
   episodeUrl(token: string): Promise<string | null>;
   info(slug: string): Promise<AnimeInfo>;
+  resolveByMal(idMal: string | number, titles: string[]): Promise<AnimeDetail | null>;
   latest(mode: Mode): Promise<LatestItem[]>;
   getBase(): Promise<string>;
   setBase(b: string): Promise<string>;

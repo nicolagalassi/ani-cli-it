@@ -7,6 +7,8 @@ contextBridge.exposeInMainWorld("ani", {
   episodes: (slug) => ipcRenderer.invoke("ani:episodes", slug),
   episodeUrl: (token) => ipcRenderer.invoke("ani:episodeUrl", token),
   info: (slug) => ipcRenderer.invoke("ani:info", slug),
+  resolveByMal: (idMal, titles) =>
+    ipcRenderer.invoke("ani:resolveByMal", idMal, titles),
   latest: (mode) => ipcRenderer.invoke("ani:latest", mode),
   getBase: () => ipcRenderer.invoke("ani:base"),
   setBase: (b) => ipcRenderer.invoke("ani:setBase", b),

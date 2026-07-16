@@ -14,6 +14,7 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
   const [rangeFrom, setRangeFrom] = useState("");
   const [rangeTo, setRangeTo] = useState("");
   const [bulk, setBulk] = useState<{ done: number; total: number } | null>(null);
+  const [notInCatalog, setNotInCatalog] = useState(false);
   const bulkRef = useRef<{ cancel: boolean; token: string | null }>({
     cancel: false,
     token: null,
@@ -22,18 +23,40 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
   useEffect(() => {
     let alive = true;
     setLoading(true);
-    window.ani.episodes(route.slug).then((d) => {
+    setNotInCatalog(false);
+    setDetail(null);
+    setAl(null);
+    setEntry(null);
+
+    const apply = (d: AnimeDetail | null) => {
       if (!alive) return;
-      setDetail(d);
       setLoading(false);
-      // enrich with AniList metadata via the MAL id from the play page
+      if (!d) {
+        setNotInCatalog(true);
+        if (route.malId != null)
+          window.ani.alByMalId(route.malId).then((m) => alive && setAl(m));
+        return;
+      }
+      setDetail(d);
       if (d.malId) window.ani.alByMalId(d.malId).then((m) => alive && setAl(m));
-    });
-    window.ani.getEntry(route.slug).then((e) => alive && setEntry(e));
+      window.ani.getEntry(d.slug).then((e) => alive && setEntry(e));
+    };
+
+    if (route.slug)
+      window.ani.episodes(route.slug).then(apply, () => apply(null));
+    else if (route.malId != null)
+      window.ani
+        .resolveByMal(route.malId, route.titles ?? [])
+        .then(apply, () => apply(null));
+    else {
+      setLoading(false);
+      setNotInCatalog(true);
+    }
+
     return () => {
       alive = false;
     };
-  }, [route.slug]);
+  }, [route.slug, route.malId]);
 
   // which episodes are already downloaded (normalized ep numbers)
   useEffect(() => {
@@ -92,7 +115,7 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
     }
     setProg((m) => ({ ...m, [e.token]: 0 }));
     window.ani.downloadEpisode({
-      slug: route.slug,
+      slug: detail.slug,
       title: detail.title,
       ep: e.num,
       token: e.token,
@@ -121,7 +144,7 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
       setProg((m) => ({ ...m, [e.token]: 0 }));
       try {
         await window.ani.downloadEpisode({
-          slug: route.slug,
+          slug: detail.slug,
           title: detail.title,
           ep: e.num,
           token: e.token,
@@ -178,12 +201,12 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
             )}
             {al?.format && <span className="pill">{al.format}</span>}
             {al?.seasonYear && <span className="pill">{al.seasonYear}</span>}
-            {detail?.malId && (
+            {(detail?.malId ?? route.malId) && (
               <button
                 className="pill link"
                 onClick={() =>
                   window.ani.openExternal(
-                    `https://myanimelist.net/anime/${detail.malId}`,
+                    `https://myanimelist.net/anime/${detail?.malId ?? route.malId}`,
                   )
                 }
               >
@@ -209,7 +232,7 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
                 if (ep)
                   go({
                     name: "player",
-                    slug: route.slug,
+                    slug: detail!.slug,
                     title: detail!.title,
                     token: ep.token,
                     ep: ep.num,
@@ -242,95 +265,109 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
         </div>
       )}
 
-      <div className="section-head">
-        <h2 className="section-title">Episodi</h2>
-        <button
-          className="pill link dl-open"
-          title="Apri la cartella dei download"
-          onClick={() => window.ani.openDownloads()}
-        >
-          ⬇ Cartella download
-        </button>
-        <input
-          className="mini-search"
-          placeholder="Trova episodio…"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-        />
-      </div>
-
-      <div className="dl-range">
-        {bulk ? (
-          <>
-            <span className="dl-range-status">
-              Scaricando {bulk.done}/{bulk.total}…
-            </span>
-            <button className="pill link" onClick={cancelBulk}>
-              Interrompi
-            </button>
-          </>
-        ) : (
-          <>
-            <span className="dl-range-label">Scarica episodi</span>
-            <input
-              className="dl-range-input"
-              type="number"
-              min={1}
-              placeholder="da"
-              value={rangeFrom}
-              onChange={(e) => setRangeFrom(e.target.value)}
-            />
-            <span className="dim">–</span>
-            <input
-              className="dl-range-input"
-              type="number"
-              min={1}
-              placeholder="a"
-              value={rangeTo}
-              onChange={(e) => setRangeTo(e.target.value)}
-            />
-            <button className="btn-small" onClick={downloadRange}>
-              ⬇ Scarica
-            </button>
-            <span className="dl-range-hint">vuoto = tutti</span>
-          </>
-        )}
-      </div>
-
       {loading ? (
-        <div className="loading">Caricamento episodi…</div>
-      ) : (
-        <div className="eplist">
-          {eps.map((e) => (
-            <button
-              key={e.num}
-              className={"epitem" + (watched.has(e.num) ? " watched" : "")}
-              onClick={() =>
-                go({
-                  name: "player",
-                  slug: route.slug,
-                  title: detail!.title,
-                  token: e.token,
-                  ep: e.num,
-                  poster: detail?.poster || route.poster,
-                })
-              }
-            >
-              <span className="ep-num">Ep {e.num}</span>
-              <span className="ep-actions">
-                {watched.has(e.num) && <span className="check">✓</span>}
-                <span
-                  className={"ep-dl " + dlState(e).cls}
-                  role="button"
-                  title={dlState(e).title}
-                  onClick={(ev) => download(e, ev)}
-                >
-                  {dlState(e).label}
-                </span>
-              </span>
-            </button>
-          ))}
+        <div className="loading">
+          {route.malId && !route.slug
+            ? "Ricerca dell'anime su AnimeWorld…"
+            : "Caricamento episodi…"}
         </div>
+      ) : notInCatalog ? (
+        <div className="not-in-catalog">
+          <strong>Non presente nel catalogo AnimeWorld</strong>
+          <span>
+            Questo titolo non è (ancora) disponibile su AnimeWorld. Qui sopra
+            trovi comunque valutazioni e informazioni da AniList.
+          </span>
+        </div>
+      ) : (
+        <>
+          <div className="section-head">
+            <h2 className="section-title">Episodi</h2>
+            <button
+              className="pill link dl-open"
+              title="Apri la cartella dei download"
+              onClick={() => window.ani.openDownloads()}
+            >
+              ⬇ Cartella download
+            </button>
+            <input
+              className="mini-search"
+              placeholder="Trova episodio…"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            />
+          </div>
+
+          <div className="dl-range">
+            {bulk ? (
+              <>
+                <span className="dl-range-status">
+                  Scaricando {bulk.done}/{bulk.total}…
+                </span>
+                <button className="pill link" onClick={cancelBulk}>
+                  Interrompi
+                </button>
+              </>
+            ) : (
+              <>
+                <span className="dl-range-label">Scarica episodi</span>
+                <input
+                  className="dl-range-input"
+                  type="number"
+                  min={1}
+                  placeholder="da"
+                  value={rangeFrom}
+                  onChange={(e) => setRangeFrom(e.target.value)}
+                />
+                <span className="dim">–</span>
+                <input
+                  className="dl-range-input"
+                  type="number"
+                  min={1}
+                  placeholder="a"
+                  value={rangeTo}
+                  onChange={(e) => setRangeTo(e.target.value)}
+                />
+                <button className="btn-small" onClick={downloadRange}>
+                  ⬇ Scarica
+                </button>
+                <span className="dl-range-hint">vuoto = tutti</span>
+              </>
+            )}
+          </div>
+
+          <div className="eplist">
+            {eps.map((e) => (
+              <button
+                key={e.num}
+                className={"epitem" + (watched.has(e.num) ? " watched" : "")}
+                onClick={() =>
+                  go({
+                    name: "player",
+                    slug: detail!.slug,
+                    title: detail!.title,
+                    token: e.token,
+                    ep: e.num,
+                    poster: detail?.poster || route.poster,
+                  })
+                }
+              >
+                <span className="ep-num">Ep {e.num}</span>
+                <span className="ep-actions">
+                  {watched.has(e.num) && <span className="check">✓</span>}
+                  <span
+                    className={"ep-dl " + dlState(e).cls}
+                    role="button"
+                    title={dlState(e).title}
+                    onClick={(ev) => download(e, ev)}
+                  >
+                    {dlState(e).label}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

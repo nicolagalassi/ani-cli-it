@@ -386,6 +386,24 @@ button {
   font-weight: 600;
   color: var(--accent);
 }
+.not-in-catalog {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-top: 8px;
+}
+.not-in-catalog strong {
+  font-size: 15px;
+}
+.not-in-catalog span {
+  font-size: 13px;
+  color: var(--dim);
+}
 
 /* --- detail --- */
 .back {

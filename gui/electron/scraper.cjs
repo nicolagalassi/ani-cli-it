@@ -163,11 +163,82 @@ async function latest(mode = "sub") {
   return out;
 }
 
+// --- resolve AnimeWorld slug from a MAL id (bridge from AniList) ----------
+// searches title variants, then confirms the match by the MAL id on the play
+// page; returns the full detail (episodes + rating) or null if not in catalog.
+async function resolveByMal(idMal, titles = []) {
+  const target = parseInt(idMal, 10);
+  if (!target) return null;
+  const norm = (s) =>
+    String(s || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+  const wanted = titles.map(norm).filter(Boolean);
+
+  // collect unique candidate slugs from each title variant
+  const seen = new Set();
+  const candidates = [];
+  for (const t of titles) {
+    if (!t) continue;
+    let items = [];
+    try {
+      items = await search(t, "all");
+    } catch {
+      items = [];
+    }
+    for (const it of items) {
+      if (!seen.has(it.slug)) {
+        seen.add(it.slug);
+        candidates.push(it);
+      }
+    }
+    if (candidates.length >= 20) break;
+  }
+
+  // rank by token overlap against BOTH the display title and the slug (the
+  // slug often carries the romaji even when the title is english), so the right
+  // anime is fetched first even when titles differ across sites
+  const rank = (it) => {
+    const slugText = norm(it.slug.replace(/\.[^.]*$/, ""));
+    const hay = norm(it.title) + " " + slugText;
+    let best = 0;
+    for (const w of wanted) {
+      if (!w) continue;
+      if (hay.includes(w)) return 3;
+      const words = w.split(" ").filter(Boolean);
+      const hits = words.filter((x) => hay.includes(x)).length;
+      if (words.length) best = Math.max(best, hits / words.length);
+    }
+    return best;
+  };
+  const cand = candidates
+    .map((it) => ({ it, r: rank(it) }))
+    .filter((x) => x.r > 0)
+    .sort((a, b) => b.r - a.r)
+    .slice(0, 8)
+    .map((x) => x.it);
+
+  // confirm by MAL id in small parallel batches (best-ranked first) so a match
+  // is found fast and a miss can't hammer the site or hang the UI
+  for (let i = 0; i < cand.length; i += 4) {
+    const batch = cand.slice(i, i + 4);
+    const details = await Promise.all(
+      batch.map((it) => episodes(it.slug).catch(() => null)),
+    );
+    for (const d of details) {
+      if (d && d.malId && parseInt(d.malId, 10) === target) return d;
+    }
+  }
+  return null;
+}
+
 module.exports = {
   search,
   episodes,
   episodeUrl,
   latest,
+  resolveByMal,
   setBase,
   getBase,
   regDomain,

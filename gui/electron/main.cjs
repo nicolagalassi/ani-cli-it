@@ -59,6 +59,16 @@ ipcMain.handle("ani:info", async (_e, slug) => {
   infoCache.set(slug, info);
   return info;
 });
+
+// resolve an AnimeWorld anime from a MAL id (AniList -> AnimeWorld bridge)
+const resolveCache = new Map();
+ipcMain.handle("ani:resolveByMal", async (_e, idMal, titles) => {
+  const key = String(idMal);
+  if (resolveCache.has(key)) return resolveCache.get(key);
+  const d = await scraper.resolveByMal(idMal, titles || []);
+  resolveCache.set(key, d);
+  return d;
+});
 ipcMain.handle("ani:base", () => scraper.getBase());
 ipcMain.handle("ani:setBase", (_e, b) => {
   scraper.setBase(b);
