@@ -562,6 +562,12 @@ button {
   font-size: 24px;
   font-weight: 800;
   margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+.player-head .pill {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .player-stage {
   background: #000;
@@ -862,6 +868,10 @@ button {
 }
 .player-stage.ui video {
   cursor: default;
+}
+.player-stage:not(.ui),
+.player-stage:not(.ui) video {
+  cursor: none;
 }
 .np-seek {
   position: relative;

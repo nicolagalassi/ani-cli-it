@@ -258,9 +258,13 @@ export function Player({ route }: { route: Extract<Route, { name: "player" }> })
     !!skip?.op && curTime >= skip.op.start && curTime < skip.op.end;
   const edActive =
     !!skip?.ed && curTime >= skip.ed.start && curTime < skip.ed.end;
+  // near the end even without ED data (some episodes have no proper ending, just
+  // a final scene): last 90s and past 80% -> still offer "next episode"
+  const nearEnd =
+    duration > 0 && curTime >= duration - 90 && curTime >= duration * 0.8;
   const overlayAction = opActive
     ? { kind: "intro" as const, label: "Salta intro" }
-    : edActive && next
+    : next && (edActive || nearEnd)
       ? { kind: "next" as const, label: "Prossimo episodio" }
       : edActive
         ? { kind: "outro" as const, label: "Salta sigla" }
