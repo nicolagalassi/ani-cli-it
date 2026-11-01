@@ -497,6 +497,7 @@ play() {
     start=$(printf "%s" "$ep_no" | grep -Eo '^(-1|[0-9]+(\.[0-9]+)?)')
     end=$(printf "%s" "$ep_no" | grep -Eo '(-1|[0-9]+(\.[0-9]+)?)$')
     [ "$start" = "-1" ] && ep_no=$(printf "%s" "$ep_list" | tail -n1) && unset start
+    [ "$ep_no" = "0" ] && ep_no=$(printf "%s" "$ep_list" | head -n1) && unset start end
     [ -z "$end" ] || [ "$end" = "$start" ] && unset start end
     [ "$end" = "-1" ] && end=$(printf "%s" "$ep_list" | tail -n1)
     [ "$start" = "0" ] && start=$(printf "%s" "$ep_list" | head -n1)
