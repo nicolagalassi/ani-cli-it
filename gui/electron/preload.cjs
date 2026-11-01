@@ -10,6 +10,8 @@ contextBridge.exposeInMainWorld("ani", {
   resolveByMal: (idMal, titles) =>
     ipcRenderer.invoke("ani:resolveByMal", idMal, titles),
   latest: (mode) => ipcRenderer.invoke("ani:latest", mode),
+  updated: (mode, page) => ipcRenderer.invoke("ani:updated", mode, page),
+  released: (slugs) => ipcRenderer.invoke("ani:released", slugs),
   getBase: () => ipcRenderer.invoke("ani:base"),
   setBase: (b) => ipcRenderer.invoke("ani:setBase", b),
 
@@ -36,6 +38,8 @@ contextBridge.exposeInMainWorld("ani", {
   alUserList: (status) => ipcRenderer.invoke("al:userList", status),
   alSetProgress: (idMal, progress) =>
     ipcRenderer.invoke("al:setProgress", idMal, progress),
+  alSetStatus: (mediaId, status) =>
+    ipcRenderer.invoke("al:setStatus", mediaId, status),
 
   // aniskip
   skipTimes: (malId, ep) => ipcRenderer.invoke("skip:times", malId, ep),

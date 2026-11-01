@@ -3,6 +3,7 @@ interface ContinueCardProps {
   poster: string | null;
   sub?: string | null;
   progress?: number | null; // 0..1
+  fresh?: string | null; // e.g. "Ep 4 da vedere": highlights the card
   onClick?: () => void;
   onRemove?: () => void;
 }
@@ -13,11 +14,12 @@ export function ContinueCard({
   poster,
   sub,
   progress,
+  fresh,
   onClick,
   onRemove,
 }: ContinueCardProps) {
   return (
-    <button className="ccard" onClick={onClick} title={title}>
+    <button className={"ccard" + (fresh ? " ccard--new" : "")} onClick={onClick} title={title}>
       <div className="ccard-poster">
         {poster ? (
           <img src={poster} alt={title} loading="lazy" />
@@ -33,6 +35,7 @@ export function ContinueCard({
       <div className="ccard-body">
         <div className="ccard-title">{title}</div>
         {sub && <div className="ccard-sub">{sub}</div>}
+        {fresh && <div className="ccard-new">● {fresh}</div>}
       </div>
       {onRemove && (
         <span

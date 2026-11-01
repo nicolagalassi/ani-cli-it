@@ -37,6 +37,8 @@ ipcMain.handle("ani:search", (_e, query, mode) => scraper.search(query, mode));
 ipcMain.handle("ani:episodes", (_e, slug) => scraper.episodes(slug));
 ipcMain.handle("ani:episodeUrl", (_e, token) => scraper.episodeUrl(token));
 ipcMain.handle("ani:latest", (_e, mode) => scraper.latest(mode));
+ipcMain.handle("ani:updated", (_e, mode, page) => scraper.updated(mode, page));
+ipcMain.handle("ani:released", (_e, slugs) => scraper.releasedFor(slugs));
 
 // compact anime info for hover cards (AnimeWorld rating + AniList score/synopsis)
 const infoCache = new Map();
@@ -112,6 +114,9 @@ ipcMain.handle("al:viewer", () => anilist.viewer());
 ipcMain.handle("al:userList", (_e, status) => anilist.userList(status));
 ipcMain.handle("al:setProgress", (_e, idMal, progress) =>
   anilist.setProgress(idMal, progress),
+);
+ipcMain.handle("al:setStatus", (_e, mediaId, status) =>
+  anilist.setStatus(mediaId, status),
 );
 ipcMain.handle("al:logout", () => {
   store.setSetting("anilistToken", null);

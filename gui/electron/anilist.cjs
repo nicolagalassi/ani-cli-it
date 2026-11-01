@@ -145,6 +145,24 @@ async function setProgress(idMal, progress) {
   return data.SaveMediaListEntry;
 }
 
+// change the status of a list entry (AniList media id, not MAL):
+// CURRENT | COMPLETED | PAUSED | DROPPED | PLANNING | REPEATING
+const LIST_STATUSES = ["CURRENT", "COMPLETED", "PAUSED", "DROPPED", "PLANNING", "REPEATING"];
+async function setStatus(mediaId, status) {
+  const t = token();
+  if (!t || !LIST_STATUSES.includes(status)) return null;
+  const data = await gql(
+    `mutation($mediaId:Int,$status:MediaListStatus){
+      SaveMediaListEntry(mediaId:$mediaId, status:$status){
+        id progress status
+      }
+    }`,
+    { mediaId, status },
+    t,
+  );
+  return data.SaveMediaListEntry;
+}
+
 module.exports = {
   byMalId,
   trending,
@@ -154,4 +172,5 @@ module.exports = {
   viewer,
   userList,
   setProgress,
+  setStatus,
 };

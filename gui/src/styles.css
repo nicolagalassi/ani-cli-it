@@ -1110,3 +1110,65 @@ button {
 .hovercard-syn.dim {
   font-style: italic;
 }
+
+/* "Continua a guardare": an episode came out after the last one watched */
+.ccard--new {
+  border-color: #fbbf24aa;
+  background: linear-gradient(90deg, #fbbf2414, var(--panel) 60%);
+}
+.ccard--new:hover {
+  border-color: #fbbf24;
+}
+.ccard-new {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fbbf24;
+  margin-top: 3px;
+}
+
+/* "Ultimi episodi": load older ones */
+.load-more {
+  display: block;
+  margin: 18px auto 0;
+  padding: 9px 20px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+.load-more:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--panel-2);
+}
+.load-more:disabled {
+  color: var(--dim);
+  cursor: default;
+}
+
+/* "In visione su AniList": status picker under each card */
+.al-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.al-status {
+  width: 100%;
+  padding: 5px 8px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--dim);
+  font-size: 12px;
+  cursor: pointer;
+}
+.al-status:hover,
+.al-status:focus {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.al-status:disabled {
+  opacity: 0.6;
+}

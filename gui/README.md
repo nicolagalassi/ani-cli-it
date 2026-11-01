@@ -22,12 +22,12 @@ Note d'avvio:
 
 ## Funzioni
 
-- **Home** — "Continua a guardare" (riprende dall'ultimo episodio, con barra di avanzamento; rimuovi una serie con la × sulla card) + ultimi episodi con tab **Sub ITA / Dub ITA**. Le sezioni sono **riordinabili** con le frecce ↑/↓ (ordine salvato).
+- **Home** — "Continua a guardare" (riprende dall'ultimo episodio, con barra di avanzamento; rimuovi una serie con la × sulla card). Le serie con **episodi usciti e non ancora visti** sono evidenziate in giallo ("Ep 4 da vedere", "3 episodi da vedere") e messe in cima. Ultimi episodi con tab **Sub ITA / Dub ITA** e pulsante **Carica altri episodi** per andare indietro nel tempo. Le sezioni sono **riordinabili** con le frecce ↑/↓ (ordine salvato).
 - **Cerca** — ricerca con locandine, filtro Tutti / Sub / Dub.
 - **Scopri** — classifiche da AniList (di tendenza / popolari / stagione).
 - **Pagina anime** — locandina, voto **AnimeWorld** e **AniList**, generi, sinossi, link MyAnimeList/AniList, lista episodi con filtro e spunta ✓ sugli episodi già visti.
 - **Player integrato** — riproduzione MP4 in-app con barra controlli custom (funziona anche a schermo intero), precedente/successivo con **preload** (switch istantaneo), ripresa dalla posizione salvata, auto-avanzamento, **"Salta intro"** (ani-skip) che a fine episodio diventa **"Prossimo episodio"**, e skip manuale **±85s**.
-- **Account AniList** *(opzionale)* — login, sezione "In visione" sulla Home, sync automatico del progresso.
+- **Account AniList** *(opzionale)* — login, sezione "In visione" sulla Home (con menu per cambiare lo stato: completato, in pausa, abbandonato, da vedere), sync automatico del progresso.
 - **Cronologia** persistente su disco.
 - **Impostazioni** — cambio dominio AnimeWorld e login AniList.
 

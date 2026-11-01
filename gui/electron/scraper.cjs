@@ -133,14 +133,23 @@ async function latest(mode = "sub") {
   const parts = text.replace(/\n/g, " ").split('<div class="content');
   const seg = parts.find((p) => p.startsWith(`" data-name="${tab}"`) || p.startsWith(` hidden" data-name="${tab}"`) || p.includes(`data-name="${tab}"`) && p.includes('class="film-list"'));
   if (!seg) return [];
+  return parseEpisodeItems(seg);
+}
+
+// <div class="item"> blocks of an episode listing (home tabs, /updated).
+// only: undefined = keep all, "sub" = drop DUB-badged items, "dub" = keep only them
+function parseEpisodeItems(html, only) {
   const out = [];
   const seen = new Set();
-  const blocks = seg.split('<div class="item">').slice(1);
+  const blocks = html.split('<div class="item">').slice(1);
   for (const block of blocks) {
     const hrefM = block.match(
       /<a href="\/play\/([^"/]+)\/([^"]+)"[^>]*class="poster"/,
     );
     if (!hrefM) continue;
+    const isDub = block.includes('<div class="dub">');
+    if (only === "sub" && isDub) continue;
+    if (only === "dub" && !isDub) continue;
     const slug = hrefM[1];
     const token = hrefM[2];
     const epM = block.match(/<div class="ep">\s*Ep ([0-9.]+)\s*<\/div>/);
@@ -160,6 +169,59 @@ async function latest(mode = "sub") {
       poster: posterM ? posterM[1] : null,
     });
   }
+  return out;
+}
+
+// --- older episodes: the /updated listing (sub and dub mixed, ~40 per page) --
+// returns { items, page } where page is the last /updated page read; reads
+// further pages until at least `min` items of the requested mode are found
+// (dub episodes are a minority, so one page is often not enough).
+async function updated(mode = "sub", fromPage = 1, min = 20) {
+  const only = mode === "dub" ? "dub" : "sub";
+  const items = [];
+  let page = fromPage;
+  for (; page < fromPage + 6; page++) {
+    const { ok, text } = await get(`/updated?page=${page}`);
+    if (!ok) break;
+    const found = parseEpisodeItems(text.replace(/\n/g, " "), only);
+    if (found.length === 0 && !text.includes('<div class="item">')) break;
+    items.push(...found);
+    if (items.length >= min) break;
+  }
+  return { items, page };
+}
+
+// --- new episodes for "Continua a guardare" -------------------------------
+// highest released episode number per slug; cached so the home page does not
+// refetch every anime on each visit
+const releasedCache = new Map(); // slug -> { at, latest }
+const RELEASED_TTL = 20 * 60 * 1000;
+
+async function latestReleased(slug) {
+  const c = releasedCache.get(slug);
+  if (c && Date.now() - c.at < RELEASED_TTL) return c.latest;
+  const { episodes: eps } = await episodes(slug);
+  const nums = eps.map((e) => parseFloat(e.num)).filter((n) => !Number.isNaN(n));
+  const latestNum = nums.length ? Math.max(...nums) : null;
+  releasedCache.set(slug, { at: Date.now(), latest: latestNum });
+  return latestNum;
+}
+
+// { slug: highest released episode | null }, 4 requests at a time
+async function releasedFor(slugs) {
+  const out = {};
+  const queue = [...new Set(slugs)];
+  async function worker() {
+    while (queue.length) {
+      const slug = queue.shift();
+      try {
+        out[slug] = await latestReleased(slug);
+      } catch {
+        out[slug] = null;
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: 4 }, worker));
   return out;
 }
 
@@ -259,6 +321,8 @@ module.exports = {
   episodes,
   episodeUrl,
   latest,
+  updated,
+  releasedFor,
   resolveByMal,
   setBase,
   getBase,

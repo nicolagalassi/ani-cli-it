@@ -119,6 +119,8 @@ export interface DownloadMsg {
   message?: string;
 }
 
+export type AniListStatus = "CURRENT" | "COMPLETED" | "PAUSED" | "DROPPED" | "PLANNING" | "REPEATING";
+
 export interface AniAPI {
   search(query: string, mode: Mode | "all"): Promise<SearchItem[]>;
   episodes(slug: string): Promise<AnimeDetail>;
@@ -126,6 +128,10 @@ export interface AniAPI {
   info(slug: string): Promise<AnimeInfo>;
   resolveByMal(idMal: string | number, titles: string[]): Promise<AnimeDetail | null>;
   latest(mode: Mode): Promise<LatestItem[]>;
+  // older episodes from /updated, starting at page; page = last page read
+  updated(mode: Mode, page: number): Promise<{ items: LatestItem[]; page: number }>;
+  // highest released episode per slug (null if unknown)
+  released(slugs: string[]): Promise<Record<string, number | null>>;
   getBase(): Promise<string>;
   setBase(b: string): Promise<string>;
   recordProgress(entry: ProgressInput): Promise<HistoryEntry>;
@@ -150,6 +156,7 @@ export interface AniAPI {
   alViewer(): Promise<AniListViewer | null>;
   alUserList(status: string): Promise<AniListEntry[]>;
   alSetProgress(idMal: string | number, progress: number): Promise<unknown>;
+  alSetStatus(mediaId: number, status: AniListStatus): Promise<unknown>;
 
   // aniskip
   skipTimes(malId: string | number, ep: string | number): Promise<SkipTimes | null>;
