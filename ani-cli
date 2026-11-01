@@ -1,6 +1,6 @@
 #!/bin/sh
 
-version_number="4.15.0"
+version_number="4.16.0"
 
 # UI
 
@@ -69,9 +69,11 @@ help_info() {
       -h, --help
         Show this help message and exit
       -e, --episode, -r, --range
-        Specify the number of episodes to watch
+        Specify the number of episodes to watch (0 = first available, -1 = last)
       --dub
         Play dubbed version
+      --exact
+        Only keep results whose title matches the query exactly (case-insensitive)
       --rofi
         Use rofi instead of fzf for the interactive menu
       --dmenu
@@ -175,6 +177,20 @@ cleanup() {
     rm -f "${histfile}.new" # remove temp logfile
 }
 
+# fetch an AnimeWorld page; on a network error or a non-2xx answer print the real cause
+# instead of letting the caller fail later with a vague "No results found!"
+aw_curl() {
+    _response="$(curl -sL -A "$agent" --max-time 15 -w ' %{http_code}' "$@")" ||
+        die "Connection error: could not reach $1 (curl exit $?)"
+    _http_code=${_response##* }
+    _response=${_response% *}
+    case "$_http_code" in
+        2??) ;;
+        *) die "Request failed: HTTP $_http_code from $1" ;;
+    esac
+    printf "%s" "$_response"
+}
+
 # SCRAPING
 
 select_quality() {
@@ -194,7 +210,7 @@ select_quality() {
 get_episode_url() {
     # cache the play page across episodes of the same anime (ranges refetch nothing)
     if [ "$cached_play_id" != "$id" ]; then
-        cached_play_html="$(curl -sL -A "$agent" "https://${animeworld_base}/play/$id")"
+        cached_play_html="$(aw_curl "https://${animeworld_base}/play/$id")"
         cached_play_id="$id"
     fi
 
@@ -307,7 +323,7 @@ get_skip_flag() {
 search_anime() {
     # scrape animeworld search results: <div class="item"> ... <a href="/play/<slug>" ... class="name">Title</a>
     # mode=dub -> only DUB-badged entries; otherwise -> only non-DUB (sub ITA) entries
-    curl -s -A "$agent" "https://${animeworld_base}/search?keyword=$1" | tr '\n' ' ' |
+    aw_curl "https://${animeworld_base}/search?keyword=$1" | tr '\n' ' ' |
         sed 's|<div class="item">|\n|g' | while IFS= read -r item; do
         printf '%s' "$item" | grep -q 'class="name"' || continue
         dub=""
@@ -328,7 +344,7 @@ search_anime() {
 latest_episodes() {
     _tab="sub"
     [ "$mode" = "dub" ] && _tab="dub"
-    curl -s -A "$agent" "https://${animeworld_base}/" | tr '\n' ' ' |
+    aw_curl "https://${animeworld_base}/" | tr '\n' ' ' |
         sed 's|<div class="content|\n<div class="content|g' |
         grep -E "^<div class=\"content[^\"]*\" data-name=\"$_tab\"" | head -1 |
         sed 's|<div class="item">|\n|g' | while IFS= read -r _item; do
@@ -343,14 +359,40 @@ latest_episodes() {
 
 time_until_next_ep() {
     animeschedule="https://animeschedule.net"
-    query="$(printf "%s\n" "$*" | tr ' ' '+')"
-    curl -s -G "$animeschedule/api/v3/anime" --data "q=${query}" | sed 's|"id"|\n|g' | sed -nE 's|.*,"route":"([^"]*)","premier.*|\1|p' | while read -r anime; do
-        data=$(curl -s "$animeschedule/anime/$anime" | sed '1,/"anime-header-list-buttons-wrapper"/d' | sed -nE 's|.*countdown-time-raw" datetime="([^"]*)">.*|Next Raw Release: \1|p;s|.*countdown-time" datetime="([^"]*)">.*|Next Sub Release: \1|p;s|.*english-title">([^<]*)<.*|English Title: \1|p;s|.*main-title".*>([^<]*)<.*|Japanese Title: \1|p')
-        status="Ongoing"
-        color="33"
-        printf "%s\n" "$data"
-        ! (printf "%s\n" "$data" | grep -q "Next Raw Release:") && status="Finished" && color="32"
-        printf "Status:  \033[1;%sm%s\033[0m\n---\n" "$color" "$status"
+    _query="$(printf "%s" "$*" | tr ' ' '+')"
+    curl -s -G "$animeschedule/api/v3/anime" --data "q=${_query}" | sed 's|},{"id"|\n|g' | while read -r _entry; do
+        _route=$(printf "%s" "$_entry" | sed -nE 's|.*"route":"([^"]*)",.*|\1|p')
+        _eng_title=$(printf '%s' "$_entry" | sed -nE 's|.*"english":"([^"]*)".*|\1|p')
+        [ -z "$_eng_title" ] && _eng_title=$(printf '%s' "$_entry" | sed -nE 's|.*,"title":"([^"]*)".*|\1|p')
+        [ -z "$_eng_title" ] && _eng_title="N/A"
+        _jpn_title=$(printf '%s' "$_entry" | sed -nE 's|.*"romaji":"([^"]*)".*|\1|p')
+        [ -z "$_jpn_title" ] && _jpn_title="N/A"
+        _status=$(printf '%s' "$_entry" | sed -nE 's|.*"status":"([^"]*)".*|\1|p')
+        [ -z "$_status" ] && _status="Unknown"
+
+        case "$_status" in
+            Ongoing) _color="33" ;;
+            Finished) _color="32" ;;
+            *) _color="36" ;;
+        esac
+
+        printf "Eng: %s\n" "$_eng_title"
+        printf "Jpn: %s\n" "$_jpn_title"
+        printf "Status: \033[1;%sm%s\033[0m\n" "$_color" "$_status"
+
+        if [ "$_status" != "Finished" ]; then
+            _page="$(curl -s "$animeschedule/anime/$_route")"
+            _sub_ep=$(printf "%s" "$_page" | sed -nE 's|.*release-time-type-subs"[^>]*><span class="release-time-episode-number">Episode ([0-9]+)</span>.*|\1|p' | head -n 1)
+            _dub_ep=$(printf "%s" "$_page" | sed -nE 's|.*release-time-type-dub"[^>]*><span class="release-time-episode-number">Episode ([0-9]+)</span>.*|\1|p' | head -n 1)
+            _sub_countdown=$(printf "%s" "$_page" | sed -nE 's|.*class="countdown-time" datetime="([^"]*)".*|\1|p' | head -n 1)
+            _dub_countdown=$(printf "%s" "$_page" | sed -nE 's|.*class="countdown-time countdown-time-dub" datetime="([^"]*)".*|\1|p' | head -n 1)
+
+            [ -n "$_sub_ep" ] && [ -n "$_sub_countdown" ] &&
+                printf "Next Sub: Episode %s in \033[1;%sm%s\033[0m\n" "$_sub_ep" "$_color" "$_sub_countdown" || printf "Next Sub: N/A\n"
+            [ -n "$_dub_ep" ] && [ -n "$_dub_countdown" ] &&
+                printf "Next Dub: Episode %s in \033[1;%sm%s\033[0m\n" "$_dub_ep" "$_color" "$_dub_countdown" || printf "Next Dub: N/A\n"
+        fi
+        printf "\n"
     done
     exit 0
 }
@@ -358,7 +400,7 @@ time_until_next_ep() {
 # get the episodes list of the selected anime
 episodes_list() {
     # fetch play page (follows redirect to /play/<slug>/<epId>) and list episode numbers
-    curl -sL -A "$agent" "https://${animeworld_base}/play/$*" |
+    aw_curl "https://${animeworld_base}/play/$*" |
         grep -oE 'data-episode-num="[0-9]+"' | grep -oE '[0-9]+' | sort -n -u
 }
 
@@ -374,7 +416,9 @@ process_hist_entry() {
 
 update_history() {
     if grep -q -- "$id" "$histfile"; then
-        sed -E "s|^[^	]+	${id}	[^	]+$|${ep_no}	${id}	${title}|" "$histfile" >"${histfile}.new"
+        # escape sed special chars in the replacement: & \ and the | delimiter
+        safe_title=$(printf '%s' "$title" | sed 's/[&\|]/\\&/g')
+        sed -E "s|^[^	]+	${id}	[^	]+$|${ep_no}	${id}	${safe_title}|" "$histfile" >"${histfile}.new"
     else
         cp "$histfile" "${histfile}.new"
         printf "%s\t%s\t%s\n" "$ep_no" "$id" "$title" >>"${histfile}.new"
@@ -384,8 +428,10 @@ update_history() {
 
 download() {
     # animeworld serves direct mp4 files; no referrer needed
+    # characters forbidden in file names on Windows/macOS/Linux become _
+    _name="$(printf "%s" "$2" | tr '<>:"/\\|?*' '_')"
     # shellcheck disable=SC2086
-    aria2c --enable-rpc=false --check-certificate=false --continue $iSH_DownFix --summary-interval=0 -x 16 -s 16 "$1" --dir="$download_dir" -o "$2.mp4" --download-result=hide
+    aria2c --enable-rpc=false --check-certificate=false --continue $iSH_DownFix --summary-interval=0 -x 16 -s 16 "$1" --dir="$download_dir" -o "$_name.mp4" --download-result=hide
 }
 
 android_mpv() {
@@ -429,9 +475,9 @@ play_episode() {
                 nohup $player_function --no-stdin --mpv-tls-verify=no --keep-running --mpv-force-media-title="${anime_title}Episode ${ep_no}" $refr_flag "$episode" >/dev/null 2>&1 &
             fi
             ;;
-        flatpak_mpv) flatpak run io.mpv.Mpv --tls-verify=no --force-media-title="${anime_title}Episode ${ep_no}" "$episode" $refr_flag >/dev/null 2>&1 & ;;
+        flatpak_mpv) flatpak run io.mpv.Mpv $skip_flag --tls-verify=no --force-media-title="${anime_title}Episode ${ep_no}" "$episode" $refr_flag >/dev/null 2>&1 & ;;
         vlc*) nohup $player_function --http-referrer="${refr_flag#--referrer=}" --play-and-exit --meta-title="${anime_title}Episode ${ep_no}" "$episode" >/dev/null 2>&1 & ;;
-        *yncpla*) nohup $player_function "$episode" -- --tls-verify=no --force-media-title="${anime_title}Episode ${ep_no}" $refr_flag >/dev/null 2>&1 & ;;
+        *yncpla*) nohup $player_function "$episode" -- $skip_flag --tls-verify=no --force-media-title="${anime_title}Episode ${ep_no}" $refr_flag >/dev/null 2>&1 & ;;
         download) "$player_function" "$episode" "${anime_title}Episode ${ep_no}" ;;
         catt) nohup catt cast "$episode" >/dev/null 2>&1 & ;;
         iSH)
@@ -453,6 +499,7 @@ play() {
     [ "$start" = "-1" ] && ep_no=$(printf "%s" "$ep_list" | tail -n1) && unset start
     [ -z "$end" ] || [ "$end" = "$start" ] && unset start end
     [ "$end" = "-1" ] && end=$(printf "%s" "$ep_list" | tail -n1)
+    [ "$start" = "0" ] && start=$(printf "%s" "$ep_list" | head -n1)
     line_count=$(printf "%s\n" "$ep_no" | wc -l | tr -d "[:space:]")
     if [ "$line_count" != 1 ] || [ -n "$start" ]; then
         [ -z "$start" ] && start=$(printf "%s\n" "$ep_no" | head -n1)
@@ -496,6 +543,7 @@ use_external_menu="${ANI_CLI_EXTERNAL_MENU:-0}"
 external_menu_normal_window="${ANI_CLI_EXTERNAL_MENU_NORMAL_WINDOW:-0}"
 skip_intro="${ANI_CLI_SKIP_INTRO:-0}"
 skip_title="${ANI_CLI_SKIP_TITLE:-}"
+exact_match="${ANI_CLI_EXACT:-0}"
 [ -t 0 ] || (command -v dmenu && use_external_menu=2)
 [ -t 0 ] || (command -v rofi && use_external_menu=1)
 hist_dir="${ANI_CLI_HIST_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/ani-cli}"
@@ -561,6 +609,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         --dub) mode="dub" ;;
+        --exact) exact_match=1 ;;
         --no-detach) no_detach=1 ;;
         --exit-after-play) exit_after_play=1 && no_detach=1 ;;
         --rofi) use_external_menu=1 ;;
@@ -645,6 +694,15 @@ case "$search" in
 
         query=$(printf "%s" "$query" | sed "s| |+|g")
         anime_list=$(search_anime "$query")
+        if [ "$exact_match" = 1 ]; then
+            # compare titles case-insensitively, ignoring extra spaces and the " (DUB)" badge
+            _query_norm="$(printf "%s" "$query" | tr '+' ' ' | tr '[:upper:]' '[:lower:]' | tr -s '[:space:]' ' ' | sed 's/^ *//;s/ *$//')"
+            anime_list="$(printf "%s\n" "$anime_list" | while IFS="$(printf '\t')" read -r _id _title; do
+                _title_norm="$(printf "%s" "${_title% (DUB)}" | tr '[:upper:]' '[:lower:]' | tr -s '[:space:]' ' ' | sed 's/^ *//;s/ *$//')"
+                [ "$_title_norm" = "$_query_norm" ] && printf "%s\t%s\n" "$_id" "$_title"
+            done)"
+            [ -z "$anime_list" ] && die "No exact match found for '$(printf "%s" "$query" | tr '+' ' ')'!"
+        fi
         [ -z "$anime_list" ] && die "No results found!"
         [ "$index" -eq "$index" ] 2>/dev/null && result=$(printf "%s" "$anime_list" | sed -n "${index}p")
         [ -z "$index" ] && result=$(printf "%s" "$anime_list" | nl -w 2 | sed 's/^[[:space:]]//' | nth "Select anime: ")

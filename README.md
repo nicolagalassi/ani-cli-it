@@ -67,7 +67,8 @@ Viene installato come **`ani-cli-it`**, così convive con l'`ani-cli` originale 
 ```sh
 ani-cli-it <nome anime>        # ricerca interattiva, Sub ITA
 ani-cli-it --dub <nome anime>  # Doppiaggio ITA
-ani-cli-it -e 1-12 <nome>      # intervallo di episodi
+ani-cli-it -e 1-12 <nome>      # intervallo di episodi (0 = primo disponibile, -1 = ultimo)
+ani-cli-it --exact <titolo>    # solo i risultati con il titolo identico (anche ANI_CLI_EXACT=1)
 ani-cli-it -c                  # riprendi dalla cronologia
 ani-cli-it --last             # ultimi episodi usciti (Sub ITA)
 ani-cli-it --last --dub       # ultimi episodi usciti (Doppiaggio ITA)
@@ -81,7 +82,7 @@ Con `--last` sfogli gli **ultimi episodi usciti** dalla home di AnimeWorld (come
 
 ### Cambio di dominio di AnimeWorld
 
-AnimeWorld cambia dominio abbastanza spesso. Se ani-cli-it smette di trovare risultati, di solito è perché il dominio è cambiato: aggiorna la riga `animeworld_base="www.animeworld.ac"` in cima allo script col nuovo dominio e reinstalla.
+AnimeWorld cambia dominio abbastanza spesso. Se ani-cli-it smette di trovare risultati, di solito è perché il dominio è cambiato: aggiorna la riga `animeworld_base="www.animeworld.ac"` in cima allo script col nuovo dominio e reinstalla. Dalla 4.16 lo script mostra la causa vera (errore di connessione o codice HTTP) invece di un generico "No results found!".
 
 Per accorgersene in anticipo, il repo ha un controllo automatico ([`.github/workflows/domain-check.yml`](.github/workflows/domain-check.yml)) che ogni 3 giorni verifica che il dominio risponda, non rediriga verso un dominio diverso e sia ancora funzionale. In caso di problema:
 

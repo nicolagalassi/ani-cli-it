@@ -17,7 +17,7 @@ This tool scrapes the site allanime.
 .SH OPTIONS
 .TP
 \fB\-e | --episode | -r | --range\fR \fI\,<episode>\/\fR
-Specify the episode numbers to watch. If range is specified it should be quoted or separated by a non-numeric character (eg. -).
+Specify the episode numbers to watch. If range is specified it should be quoted or separated by a non-numeric character (eg. -). Use 0 for the first available episode and -1 for the last.
 .TP
 \fB\-c | --continue\fR
 Continue watching anime from history.
@@ -54,6 +54,9 @@ Prints a countdown to the next episode as the last episode in the list. If in hi
 .TP
 \fB\--dub\fR
 Play the dubbed version. Without this flag, it'll always play the subbed version.
+.TP
+\fB\--exact\fR
+Only keep search results whose title matches the query exactly (case-insensitive, the DUB badge is ignored).
 .TP
 \fB\--rofi\fR
 Use rofi instead of fzf for the interactive menu
@@ -113,6 +116,9 @@ Controls if mpv is detached from the main process for playback, which can be use
 .TP
 \fBANI_CLI_SKIP_TITLE\fR
 Overrides the anime title to query for skip times. Can be any string value. Default is empty, resolving to the anime title as given by ani-cli.
+.TP
+\fBANI_CLI_EXACT\fR
+Controls whether only anime titles that exactly match the query are selected (case-insensitive). Can be 0 (disabled) or 1 (enabled). Default is 0.
 .PP
 .SH EPISODE SELECTION
 .PP
