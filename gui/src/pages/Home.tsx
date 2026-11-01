@@ -105,11 +105,7 @@ export function Home() {
       let page = morePage;
       for (let round = 0; round < 4 && added.length < 12; round++) {
         const res = await window.ani.updated(mode, page);
-        page = res.page + 1;
-        if (res.items.length === 0) {
-          setNoMore(true);
-          break;
-        }
+        page = res.next;
         for (const l of res.items) {
           const k = `${l.slug}#${l.ep}`;
           if (!keys.has(k)) {
@@ -117,6 +113,13 @@ export function Home() {
             added.push(l);
           }
         }
+        // last AnimeWorld page reached; an empty answer without end is a failed
+        // request, retried from the same page on the next click
+        if (res.end) {
+          setNoMore(true);
+          break;
+        }
+        if (res.items.length === 0) break;
       }
       setMorePage(page);
       setLatest((prev) => [...prev, ...added]);

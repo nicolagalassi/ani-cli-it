@@ -173,22 +173,32 @@ function parseEpisodeItems(html, only) {
 }
 
 // --- older episodes: the /updated listing (sub and dub mixed, ~40 per page) --
-// returns { items, page } where page is the last /updated page read; reads
-// further pages until at least `min` items of the requested mode are found
-// (dub episodes are a minority, so one page is often not enough).
+// returns { items, next, end }: next is the first /updated page not read yet
+// (a failed page is not counted as read, so the next call retries it); end is
+// true once the last page has been read. Reads further pages until at least
+// `min` items of the requested mode are found (dub episodes are a minority,
+// so one page is often not enough). Past the last page AnimeWorld serves
+// page 1 again, so the page count shown on the page is the stop signal.
 async function updated(mode = "sub", fromPage = 1, min = 20) {
   const only = mode === "dub" ? "dub" : "sub";
   const items = [];
-  let page = fromPage;
-  for (; page < fromPage + 6; page++) {
-    const { ok, text } = await get(`/updated?page=${page}`);
+  let next = fromPage;
+  let end = false;
+  while (!end && next < fromPage + 6) {
+    const { ok, text } = await get(`/updated?page=${next}`);
     if (!ok) break;
-    const found = parseEpisodeItems(text.replace(/\n/g, " "), only);
-    if (found.length === 0 && !text.includes('<div class="item">')) break;
-    items.push(...found);
+    const totalM = text.match(/class="total">\s*([0-9]+)\s*</);
+    const total = totalM ? parseInt(totalM[1], 10) : Infinity;
+    if (next > total || !text.includes('<div class="item">')) {
+      end = true;
+      break;
+    }
+    next++;
+    items.push(...parseEpisodeItems(text.replace(/\n/g, " "), only));
+    if (next > total) end = true;
     if (items.length >= min) break;
   }
-  return { items, page };
+  return { items, next, end };
 }
 
 // --- new episodes for "Continua a guardare" -------------------------------

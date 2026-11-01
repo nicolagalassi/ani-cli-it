@@ -128,8 +128,8 @@ export interface AniAPI {
   info(slug: string): Promise<AnimeInfo>;
   resolveByMal(idMal: string | number, titles: string[]): Promise<AnimeDetail | null>;
   latest(mode: Mode): Promise<LatestItem[]>;
-  // older episodes from /updated, starting at page; page = last page read
-  updated(mode: Mode, page: number): Promise<{ items: LatestItem[]; page: number }>;
+  // older episodes from /updated starting at page; next = first page not read yet, end = last page read
+  updated(mode: Mode, page: number): Promise<{ items: LatestItem[]; next: number; end: boolean }>;
   // highest released episode per slug (null if unknown)
   released(slugs: string[]): Promise<Record<string, number | null>>;
   getBase(): Promise<string>;
