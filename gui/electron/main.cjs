@@ -185,6 +185,7 @@ ipcMain.handle("al:login", async () => {
 
 // --- IPC: misc -------------------------------------------------------------
 ipcMain.handle("app:openExternal", (_e, url) => shell.openExternal(url));
+ipcMain.handle("app:version", () => app.getVersion());
 
 app.whenReady().then(() => {
   // restore a custom domain if set

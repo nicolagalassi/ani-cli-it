@@ -1172,3 +1172,8 @@ button {
 .al-status:disabled {
   opacity: 0.6;
 }
+
+.setting-version {
+  margin: 0 0 8px;
+  font-weight: 600;
+}

@@ -142,6 +142,7 @@ export interface AniAPI {
   settings(): Promise<Record<string, unknown>>;
   setSetting(k: string, v: unknown): Promise<Record<string, unknown>>;
   openExternal(url: string): Promise<void>;
+  version(): Promise<string>;
 
   // anilist (public)
   alByMalId(idMal: string | number): Promise<AniListMedia | null>;

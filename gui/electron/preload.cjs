@@ -46,6 +46,7 @@ contextBridge.exposeInMainWorld("ani", {
 
   // misc
   openExternal: (url) => ipcRenderer.invoke("app:openExternal", url),
+  version: () => ipcRenderer.invoke("app:version"),
 
   // downloads
   downloadEpisode: (req) => ipcRenderer.invoke("dl:episode", req),

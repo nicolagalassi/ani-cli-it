@@ -8,8 +8,11 @@ export function Settings() {
   const [viewer, setViewer] = useState<AniListViewer | null>(null);
   const [alError, setAlError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [version, setVersion] = useState("");
+  const electronVersion = navigator.userAgent.match(/Electron\/([\d.]+)/)?.[1] ?? "?";
 
   useEffect(() => {
+    window.ani.version().then(setVersion);
     window.ani.getBase().then(setBase);
     window.ani.settings().then((s) => setClientId((s.anilistClientId as string) || ""));
     window.ani.alViewer().then(setViewer);
@@ -123,6 +126,7 @@ export function Settings() {
 
       <section className="setting">
         <h2 className="section-title">Info</h2>
+        {version && <p className="setting-version">Versione {version} · Electron {electronVersion}</p>}
         <p className="dim">
           Animix ITA — interfaccia per ani-cli-it. Contenuti da AnimeWorld
           (Sub/Dub ITA). I video vengono riprodotti direttamente nell'app.
