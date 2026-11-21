@@ -1,13 +1,16 @@
-import { useRef, useState } from "react";
-import { Card } from "./Card";
-import type { AnimeInfo, LatestItem } from "../types";
+import { useId, useRef, useState } from "react";
+import { Card, Tag } from "./Card";
+import type { AnimeInfo, LatestItem, Mode } from "../types";
 
-// latest-episode card that reveals anime info (scores + synopsis) on hover
+// latest-episode card that reveals anime info (scores + synopsis) on hover or
+// keyboard focus
 export function LatestCard({
   item,
+  mode,
   onClick,
 }: {
   item: LatestItem;
+  mode: Mode;
   onClick: () => void;
 }) {
   const [info, setInfo] = useState<AnimeInfo | null>(null);
@@ -15,65 +18,75 @@ export function LatestCard({
   const [align, setAlign] = useState<"center" | "left" | "right">("center");
   const timer = useRef<number | undefined>(undefined);
   const ref = useRef<HTMLDivElement>(null);
+  const popId = useId();
 
   function enter() {
-    setShow(true);
+    clearTimeout(timer.current);
     const el = ref.current;
     if (el) {
       const r = el.getBoundingClientRect();
-      const half = 130; // half of the 260px popover
+      const half = 150; // half of the popover width
       const center = r.left + r.width / 2;
       if (center - half < 8) setAlign("left");
       else if (center + half > window.innerWidth - 8) setAlign("right");
       else setAlign("center");
     }
-    if (info) return;
+    // a short delay keeps the popover from flashing while the pointer crosses the grid
     timer.current = window.setTimeout(() => {
-      window.ani.info(item.slug).then((i) => setInfo(i));
-    }, 300);
+      setShow(true);
+      if (!info) window.ani.info(item.slug).then(setInfo).catch(() => {});
+    }, 350);
   }
 
   function leave() {
-    setShow(false);
     clearTimeout(timer.current);
+    setShow(false);
   }
 
   return (
-    <div className="hovercard" ref={ref} onMouseEnter={enter} onMouseLeave={leave}>
+    <div
+      className="hovercard"
+      ref={ref}
+      onMouseEnter={enter}
+      onMouseLeave={leave}
+      onFocus={enter}
+      onBlur={leave}
+      onKeyDown={(e) => {
+        // Esc closes the info first; the next Esc goes back as usual
+        if (e.key === "Escape" && show) {
+          e.preventDefault();
+          leave();
+        }
+      }}
+    >
       <Card
         title={item.title}
         poster={item.poster}
-        badge={`Ep ${item.ep}`}
+        badge={{ label: `EP ${item.ep}`, tone: mode }}
         onClick={onClick}
+        describedBy={show && info ? popId : undefined}
       />
       {show && (
-        <div className={"hovercard-pop " + align} role="tooltip">
+        <div className={"hovercard-pop " + align} role="tooltip" id={popId}>
           {!info ? (
-            <div className="hovercard-loading">Caricamento…</div>
+            <div className="hovercard-loading">
+              <span className="skel skel-line" />
+              <span className="skel skel-line short" />
+            </div>
           ) : (
             <>
               <div className="hovercard-title">{info.title}</div>
-              <div className="hovercard-scores">
-                {info.anilistScore != null && (
-                  <span className="pill score">★ {info.anilistScore}%</span>
-                )}
-                {info.awScore != null && (
-                  <span className="pill score aw">
-                    AW ★ {info.awScore.toFixed(2)}
-                  </span>
-                )}
-                {info.episodes > 0 && (
-                  <span className="pill">{info.episodes} ep</span>
-                )}
+              <div className="hovercard-tags">
+                {info.anilistScore != null && <Tag>AniList {info.anilistScore}%</Tag>}
+                {info.awScore != null && <Tag>AW {info.awScore.toFixed(2)}</Tag>}
+                {info.episodes > 0 && <Tag>{info.episodes} ep</Tag>}
               </div>
               {info.genres.length > 0 && (
                 <div className="hovercard-genres">{info.genres.join(" · ")}</div>
               )}
-              {info.synopsis ? (
-                <p className="hovercard-syn">{info.synopsis}…</p>
-              ) : (
-                <p className="hovercard-syn dim">Nessuna sinossi disponibile.</p>
-              )}
+              <p className="hovercard-syn">
+                {info.synopsis ? `${info.synopsis}…` : "Nessuna sinossi disponibile."}
+              </p>
             </>
           )}
         </div>

@@ -14,7 +14,7 @@ function createWindow() {
     height: 820,
     minWidth: 940,
     minHeight: 600,
-    backgroundColor: "#0e0b1a",
+    backgroundColor: "#10142a",
     autoHideMenuBar: true,
     title: "Animix ITA",
     icon: path.join(__dirname, "..", "build", "icon.png"),

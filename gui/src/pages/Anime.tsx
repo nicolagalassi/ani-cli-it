@@ -1,12 +1,28 @@
-import { useEffect, useRef, useState, type MouseEvent } from "react";
-import { useNav, type Route } from "../App";
-import type { AnimeDetail, HistoryEntry, AniListMedia, Episode } from "../types";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, Check, Download, ExternalLink, FolderOpen, Play, TriangleAlert, X } from "lucide-react";
+import { useActive, useNav, type Route } from "../App";
+import { Poster, Tag } from "../components/Card";
+import { isDub, nextEpisode, nextLabel } from "../lib/episodes";
+import { fallbackPaint, paintVar, rememberPaint } from "../lib/paint";
+import type { AniListMedia, AnimeDetail, Episode, HistoryEntry } from "../types";
+
+const CHUNK = 100; // episodes per block on long series
+
+function stripHtml(s: string) {
+  return s
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
 
 export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
-  const { go, back } = useNav();
+  const { go, back, canGoBack } = useNav();
+  const active = useActive();
   const [detail, setDetail] = useState<AnimeDetail | null>(null);
   const [entry, setEntry] = useState<HistoryEntry | null>(null);
   const [al, setAl] = useState<AniListMedia | null>(null);
+  const [alLoaded, setAlLoaded] = useState(false);
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [dled, setDled] = useState<Set<string>>(new Set());
@@ -14,11 +30,12 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
   const [rangeFrom, setRangeFrom] = useState("");
   const [rangeTo, setRangeTo] = useState("");
   const [bulk, setBulk] = useState<{ done: number; total: number } | null>(null);
+  const [showDl, setShowDl] = useState(false);
   const [notInCatalog, setNotInCatalog] = useState(false);
-  const bulkRef = useRef<{ cancel: boolean; token: string | null }>({
-    cancel: false,
-    token: null,
-  });
+  const [chunk, setChunk] = useState<number | null>(null);
+  const [fullDesc, setFullDesc] = useState(false);
+  const [announce, setAnnounce] = useState("");
+  const bulkRef = useRef<{ cancel: boolean; token: string | null }>({ cancel: false, token: null });
 
   useEffect(() => {
     let alive = true;
@@ -26,37 +43,58 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
     setNotInCatalog(false);
     setDetail(null);
     setAl(null);
+    setAlLoaded(false);
     setEntry(null);
+    setChunk(null);
+
+    const loadAl = (malId: string | number) =>
+      window.ani
+        .alByMalId(malId)
+        .then((m) => {
+          if (!alive) return;
+          setAl(m);
+          setAlLoaded(true);
+        })
+        .catch(() => alive && setAlLoaded(true));
 
     const apply = (d: AnimeDetail | null) => {
       if (!alive) return;
       setLoading(false);
       if (!d) {
         setNotInCatalog(true);
-        if (route.malId != null)
-          window.ani.alByMalId(route.malId).then((m) => alive && setAl(m));
+        if (route.malId != null) loadAl(route.malId);
+        else setAlLoaded(true);
         return;
       }
       setDetail(d);
-      if (d.malId) window.ani.alByMalId(d.malId).then((m) => alive && setAl(m));
+      if (d.malId) loadAl(d.malId);
+      else setAlLoaded(true);
       window.ani.getEntry(d.slug).then((e) => alive && setEntry(e));
     };
 
-    if (route.slug)
-      window.ani.episodes(route.slug).then(apply, () => apply(null));
+    if (route.slug) window.ani.episodes(route.slug).then(apply, () => apply(null));
     else if (route.malId != null)
-      window.ani
-        .resolveByMal(route.malId, route.titles ?? [])
-        .then(apply, () => apply(null));
+      window.ani.resolveByMal(route.malId, route.titles ?? []).then(apply, () => apply(null));
     else {
       setLoading(false);
       setNotInCatalog(true);
+      setAlLoaded(true);
     }
 
     return () => {
       alive = false;
     };
   }, [route.slug, route.malId]);
+
+  // watched marks change while the player is on top: refresh on return
+  useEffect(() => {
+    if (active && detail) window.ani.getEntry(detail.slug).then(setEntry);
+  }, [active, detail?.slug]);
+
+  // remember the series paint so Home can wear it without a lookup
+  useEffect(() => {
+    if (detail && alLoaded) rememberPaint(detail.slug, al?.coverImage?.color ?? null);
+  }, [detail?.slug, alLoaded, al]);
 
   // which episodes are already downloaded (normalized ep numbers)
   useEffect(() => {
@@ -81,27 +119,56 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
       if (m.type === "done" && m.ep != null) {
         const n = String(parseFloat(m.ep));
         setDled((s) => new Set(s).add(n));
+        setAnnounce(`Episodio ${m.ep} scaricato.`);
+      } else if (m.type === "error") {
+        setAnnounce(`Download${m.ep ? ` dell'episodio ${m.ep}` : ""} non riuscito.`);
       }
     });
   }, []);
 
+  const episodes = detail?.episodes ?? [];
   const watched = new Set(entry?.watched ?? []);
-  const eps = (detail?.episodes ?? []).filter((e) =>
-    filter ? e.num.startsWith(filter.trim()) : true,
-  );
+  const next = detail ? nextEpisode(entry, episodes) : null;
+  const title = detail?.title ?? route.title ?? al?.title.english ?? al?.title.romaji ?? "";
+  const poster = detail?.poster || route.poster || al?.coverImage?.large || null;
+  const dub = route.dub ?? (detail ? isDub(detail.slug, detail.title) : false);
+  const paint = al?.coverImage?.color ?? (detail ? fallbackPaint(detail.slug) : null);
+  const malId = detail?.malId ?? route.malId ?? null;
+
+  // long series are split into blocks; start on the block holding the next episode
+  const chunks = useMemo(() => {
+    if (episodes.length <= CHUNK + 20) return [];
+    const out: { from: number; to: number; label: string }[] = [];
+    for (let i = 0; i < episodes.length; i += CHUNK) {
+      const slice = episodes.slice(i, i + CHUNK);
+      out.push({ from: i, to: i + slice.length, label: `${slice[0].num}–${slice[slice.length - 1].num}` });
+    }
+    return out;
+  }, [episodes]);
+  const nextIdx = next ? episodes.indexOf(next.ep) : 0;
+  const activeChunk = chunk ?? (chunks.length ? Math.floor(Math.max(nextIdx, 0) / CHUNK) : 0);
+
+  const shown = filter.trim()
+    ? episodes.filter((e) => e.num.startsWith(filter.trim()))
+    : chunks.length
+      ? episodes.slice(chunks[activeChunk].from, chunks[activeChunk].to)
+      : episodes;
+
+  function play(e: Episode) {
+    if (!detail) return;
+    go({ name: "player", slug: detail.slug, title: detail.title, token: e.token, ep: e.num, poster });
+  }
 
   function dlState(e: Episode) {
     const n = String(parseFloat(e.num));
     const p = prog[e.token];
-    if (dled.has(n))
-      return { label: "⬇ ✓", title: "Scaricato — apri cartella", cls: "done" };
-    if (p === -1) return { label: "⚠", title: "Errore — riprova", cls: "err" };
-    if (p != null) return { label: `${p}%`, title: "Annulla download", cls: "active" };
-    return { label: "⬇", title: "Scarica episodio", cls: "" };
+    if (dled.has(n)) return { kind: "done" as const, label: `Episodio ${e.num} scaricato: apri la cartella` };
+    if (p === -1) return { kind: "err" as const, label: `Download dell'episodio ${e.num} non riuscito: riprova` };
+    if (p != null) return { kind: "active" as const, pct: p, label: `Annulla il download dell'episodio ${e.num} (${p}%)` };
+    return { kind: "idle" as const, label: `Scarica l'episodio ${e.num}` };
   }
 
-  function download(e: Episode, ev: MouseEvent) {
-    ev.stopPropagation();
+  function download(e: Episode) {
     if (!detail) return;
     const n = String(parseFloat(e.num));
     if (dled.has(n)) {
@@ -114,12 +181,7 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
       return;
     }
     setProg((m) => ({ ...m, [e.token]: 0 }));
-    window.ani.downloadEpisode({
-      slug: detail.slug,
-      title: detail.title,
-      ep: e.num,
-      token: e.token,
-    });
+    window.ani.downloadEpisode({ slug: detail.slug, title: detail.title, ep: e.num, token: e.token }).catch(() => {});
   }
 
   // download every episode in [from, to] (empty bound = open-ended) sequentially
@@ -143,12 +205,7 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
       bulkRef.current.token = e.token;
       setProg((m) => ({ ...m, [e.token]: 0 }));
       try {
-        await window.ani.downloadEpisode({
-          slug: detail.slug,
-          title: detail.title,
-          ep: e.num,
-          token: e.token,
-        });
+        await window.ani.downloadEpisode({ slug: detail.slug, title: detail.title, ep: e.num, token: e.token });
       } catch {
         // skip failed episode, keep going
       }
@@ -163,211 +220,269 @@ export function Anime({ route }: { route: Extract<Route, { name: "anime" }> }) {
     if (bulkRef.current.token) window.ani.cancelDownload(bulkRef.current.token);
   }
 
+  const desc = al?.description ? stripHtml(al.description) : null;
+  const longDesc = !!desc && desc.length > 420;
+
   return (
     <div className="page">
-      <button className="back" onClick={back}>
-        ← Indietro
-      </button>
-      <div className="detail">
-        <div className="detail-poster">
-          {detail?.poster || route.poster || al?.coverImage?.large ? (
-            <img src={(detail?.poster || route.poster || al?.coverImage?.large)!} alt={detail?.title ?? ""} />
-          ) : (
-            <div className="card-noposter big">
-              {(route.title ?? "?").slice(0, 1)}
-            </div>
-          )}
+      <p className="sr-only" role="status" aria-live="polite">
+        {announce}
+      </p>
+      {canGoBack && (
+        <div className="back-row">
+          <button className="btn btn-ghost" onClick={back}>
+            <ArrowLeft aria-hidden="true" className="ico" />
+            Indietro
+          </button>
         </div>
-        <div className="detail-info">
-          <span className="hero-kicker">ORA IN VISIONE</span>
-          <h1 className="detail-title">{detail?.title ?? route.title}</h1>
-          <div className="detail-meta">
+      )}
+
+      <section
+        className={"series-band" + (paint ? " painted" : " unpainted")}
+        style={paintVar(paint)}
+        aria-labelledby="series-title"
+      >
+        <div className="series-poster">
+          <Poster src={poster} title={title} eager />
+        </div>
+        <div className="series-info">
+          <h1 className="series-title" id="series-title">
+            {title}
+          </h1>
+          <div className="tag-row">
+            {detail && <Tag tone={dub ? "dub" : "sub"}>{dub ? "Dub ITA" : "Sub ITA"}</Tag>}
+            {al?.format && <Tag>{al.format}</Tag>}
+            {al?.seasonYear && <Tag>{al.seasonYear}</Tag>}
+          </div>
+          <dl className="facts">
             {detail && (
-              <span className="pill">{detail.episodes.length} episodi</span>
+              <div>
+                <dt>Episodi</dt>
+                <dd>{detail.episodes.length}</dd>
+              </div>
             )}
-            {route.dub && <span className="pill dub">DUB ITA</span>}
-            {al?.averageScore && <span className="pill score">★ {al.averageScore}%</span>}
+            {al?.averageScore != null && (
+              <div>
+                <dt>AniList</dt>
+                <dd>{al.averageScore}%</dd>
+              </div>
+            )}
             {detail?.awScore != null && (
-              <span
-                className="pill score aw"
-                title={
-                  detail.awVotes
-                    ? `Voto AnimeWorld — ${detail.awVotes.toLocaleString("it-IT")} voti`
-                    : "Voto AnimeWorld"
-                }
+              <div
+                title={detail.awVotes ? `${detail.awVotes.toLocaleString("it-IT")} voti su AnimeWorld` : undefined}
               >
-                AW ★ {detail.awScore.toFixed(2)}
-              </span>
+                <dt>AnimeWorld</dt>
+                <dd>{detail.awScore.toFixed(2)}</dd>
+              </div>
             )}
-            {al?.format && <span className="pill">{al.format}</span>}
-            {al?.seasonYear && <span className="pill">{al.seasonYear}</span>}
-            {(detail?.malId ?? route.malId) && (
+          </dl>
+          <div className="series-actions">
+            {next && (
+              <button className="btn btn-ink" data-primary onClick={() => play(next.ep)}>
+                <Play aria-hidden="true" className="ico" />
+                {nextLabel(next)}
+              </button>
+            )}
+            {malId && (
               <button
-                className="pill link"
-                onClick={() =>
-                  window.ani.openExternal(
-                    `https://myanimelist.net/anime/${detail?.malId ?? route.malId}`,
-                  )
-                }
+                className="btn btn-ink-ghost"
+                onClick={() => window.ani.openExternal(`https://myanimelist.net/anime/${malId}`)}
               >
-                MAL ↗
+                MyAnimeList
+                <ExternalLink aria-hidden="true" className="ico" />
               </button>
             )}
             {al && (
-              <button
-                className="pill link"
-                onClick={() =>
-                  window.ani.openExternal(`https://anilist.co/anime/${al.id}`)
-                }
-              >
-                AniList ↗
+              <button className="btn btn-ink-ghost" onClick={() => window.ani.openExternal(`https://anilist.co/anime/${al.id}`)}>
+                AniList
+                <ExternalLink aria-hidden="true" className="ico" />
               </button>
             )}
           </div>
-          {entry?.lastEp && (
-            <button
-              className="resume"
-              onClick={() => {
-                const ep = detail?.episodes.find((e) => e.num === entry.lastEp);
-                if (ep)
-                  go({
-                    name: "player",
-                    slug: detail!.slug,
-                    title: detail!.title,
-                    token: ep.token,
-                    ep: ep.num,
-                    poster: detail?.poster || route.poster,
-                  });
-              }}
-            >
-              ▸ Riprendi dall'episodio {entry.lastEp}
-            </button>
-          )}
         </div>
-      </div>
+      </section>
 
-      {al && (al.genres.length > 0 || al.description) && (
+      {al && (al.genres.length > 0 || desc) && (
         <div className="synopsis">
           {al.genres.length > 0 && (
             <div className="genres">
               {al.genres.map((g) => (
-                <span key={g} className="genre">
-                  {g}
-                </span>
+                <Tag key={g}>{g}</Tag>
               ))}
             </div>
           )}
-          {al.description && (
-            <p className="desc">
-              {al.description.replace(/<[^>]+>/g, "").slice(0, 600)}
-            </p>
+          {desc && (
+            <>
+              <p className="desc">{longDesc && !fullDesc ? desc.slice(0, 420).trimEnd() + "…" : desc}</p>
+              {longDesc && (
+                <button className="link-btn" onClick={() => setFullDesc((v) => !v)} aria-expanded={fullDesc}>
+                  {fullDesc ? "Mostra meno" : "Leggi tutta la trama"}
+                </button>
+              )}
+            </>
           )}
         </div>
       )}
 
       {loading ? (
-        <div className="loading">
-          {route.malId && !route.slug
-            ? "Ricerca dell'anime su AnimeWorld…"
-            : "Caricamento episodi…"}
-        </div>
-      ) : notInCatalog ? (
-        <div className="not-in-catalog">
-          <strong>Non presente nel catalogo AnimeWorld</strong>
-          <span>
-            Questo titolo non è (ancora) disponibile su AnimeWorld. Qui sopra
-            trovi comunque valutazioni e informazioni da AniList.
-          </span>
-        </div>
-      ) : (
-        <>
-          <div className="section-head">
-            <h2 className="section-title">Episodi</h2>
-            <button
-              className="pill link dl-open"
-              title="Apri la cartella dei download"
-              onClick={() => window.ani.openDownloads()}
-            >
-              ⬇ Cartella download
-            </button>
-            <input
-              className="mini-search"
-              placeholder="Trova episodio…"
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-            />
-          </div>
-
-          <div className="dl-range">
-            {bulk ? (
-              <>
-                <span className="dl-range-status">
-                  Scaricando {bulk.done}/{bulk.total}…
-                </span>
-                <button className="pill link" onClick={cancelBulk}>
-                  Interrompi
-                </button>
-              </>
-            ) : (
-              <>
-                <span className="dl-range-label">Scarica episodi</span>
-                <input
-                  className="dl-range-input"
-                  type="number"
-                  min={1}
-                  placeholder="da"
-                  value={rangeFrom}
-                  onChange={(e) => setRangeFrom(e.target.value)}
-                />
-                <span className="dim">–</span>
-                <input
-                  className="dl-range-input"
-                  type="number"
-                  min={1}
-                  placeholder="a"
-                  value={rangeTo}
-                  onChange={(e) => setRangeTo(e.target.value)}
-                />
-                <button className="btn-small" onClick={downloadRange}>
-                  ⬇ Scarica
-                </button>
-                <span className="dl-range-hint">vuoto = tutti</span>
-              </>
-            )}
-          </div>
-
-          <div className="eplist">
-            {eps.map((e) => (
-              <button
-                key={e.num}
-                className={"epitem" + (watched.has(e.num) ? " watched" : "")}
-                onClick={() =>
-                  go({
-                    name: "player",
-                    slug: detail!.slug,
-                    title: detail!.title,
-                    token: e.token,
-                    ep: e.num,
-                    poster: detail?.poster || route.poster,
-                  })
-                }
-              >
-                <span className="ep-num">Ep {e.num}</span>
-                <span className="ep-actions">
-                  {watched.has(e.num) && <span className="check">✓</span>}
-                  <span
-                    className={"ep-dl " + dlState(e).cls}
-                    role="button"
-                    title={dlState(e).title}
-                    onClick={(ev) => download(e, ev)}
-                  >
-                    {dlState(e).label}
-                  </span>
-                </span>
-              </button>
+        <div className="section">
+          <p className="muted" role="status">
+            {route.malId && !route.slug ? "Cerco la serie su AnimeWorld…" : "Carico gli episodi…"}
+          </p>
+          <div className="eplist" aria-hidden="true" style={{ marginTop: "1rem" }}>
+            {Array.from({ length: 12 }, (_, i) => (
+              <span key={i} className="skel" style={{ height: "2.9rem" }} />
             ))}
           </div>
-        </>
+        </div>
+      ) : notInCatalog ? (
+        <div className="section notice">
+          <strong>Non è (ancora) su AnimeWorld</strong>
+          <span>
+            Non ho trovato questa serie nel catalogo AnimeWorld. Qui sopra ci sono comunque voto e trama da AniList; prova
+            a cercarla con un altro titolo.
+          </span>
+          <button className="btn btn-ghost" onClick={() => go({ name: "browse", query: title })}>
+            Cerca “{title}”
+          </button>
+        </div>
+      ) : (
+        <section className="section" aria-labelledby="h-eps">
+          <div className="section-head">
+            <h2 className="section-title" id="h-eps">
+              Episodi
+            </h2>
+            <div className="ep-toolbar">
+              <input
+                className="field"
+                inputMode="decimal"
+                aria-label="Vai all'episodio numero"
+                placeholder="Vai all'episodio…"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+              />
+              <button className="btn btn-ghost" aria-expanded={showDl} onClick={() => setShowDl((v) => !v)}>
+                <Download aria-hidden="true" className="ico" />
+                Scarica
+              </button>
+            </div>
+          </div>
+
+          {(showDl || bulk) && (
+            <div className="dl-panel">
+              {bulk ? (
+                <>
+                  <span className="dl-panel-label" role="status">
+                    Scarico {bulk.done} di {bulk.total}…
+                  </span>
+                  <button className="btn btn-danger" onClick={cancelBulk}>
+                    <X aria-hidden="true" className="ico" />
+                    Interrompi
+                  </button>
+                </>
+              ) : (
+                <>
+                  <span className="dl-panel-label">Scarica dall'episodio</span>
+                  <input
+                    className="field"
+                    type="number"
+                    min={1}
+                    aria-label="Dall'episodio"
+                    placeholder="primo"
+                    value={rangeFrom}
+                    onChange={(e) => setRangeFrom(e.target.value)}
+                  />
+                  <span className="dl-panel-label">all'episodio</span>
+                  <input
+                    className="field"
+                    type="number"
+                    min={1}
+                    aria-label="All'episodio"
+                    placeholder="ultimo"
+                    value={rangeTo}
+                    onChange={(e) => setRangeTo(e.target.value)}
+                  />
+                  <button className="btn btn-primary" onClick={downloadRange}>
+                    <Download aria-hidden="true" className="ico" />
+                    Scarica
+                  </button>
+                  <button className="btn btn-ghost" onClick={() => window.ani.openDownloads()}>
+                    <FolderOpen aria-hidden="true" className="ico" />
+                    Apri cartella
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
+          {chunks.length > 0 && !filter.trim() && (
+            <div className="ep-chunks" role="group" aria-label="Blocchi di episodi">
+              {chunks.map((c, i) => (
+                <button key={c.label} className="seg-btn" aria-pressed={i === activeChunk} onClick={() => setChunk(i)}>
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {shown.length === 0 ? (
+            <p className="muted">Nessun episodio con questo numero.</p>
+          ) : (
+            <div className="eplist">
+              {shown.map((e) => {
+                const isWatched = watched.has(e.num);
+                const isNext = next?.ep === e && next.kind !== "rewatch";
+                const dl = dlState(e);
+                return (
+                  <div
+                    key={e.num}
+                    className={"ep" + (isWatched ? " is-watched" : "") + (isNext ? " is-next painted" : "")}
+                    style={isNext ? paintVar(paint) : undefined}
+                  >
+                    <button
+                      className="ep-play"
+                      onClick={() => play(e)}
+                      aria-label={`Guarda l'episodio ${e.num}${
+                        isNext ? (next?.kind === "resume" ? ", riprendi" : ", prossimo") : isWatched ? ", visto" : ""
+                      }`}
+                    >
+                      <span className="ep-num">{e.num}</span>
+                      {isNext ? (
+                        <span className="ep-state">{next?.kind === "resume" ? "riprendi" : "prossimo"}</span>
+                      ) : isWatched ? (
+                        <span className="ep-state">
+                          <Check aria-hidden="true" className="ico" />
+                          visto
+                        </span>
+                      ) : null}
+                    </button>
+                    <button
+                      className={"ep-dl is-" + dl.kind}
+                      aria-label={dl.label}
+                      title={dl.label}
+                      onClick={() => download(e)}
+                    >
+                      {dl.kind === "active" ? (
+                        `${dl.pct}%`
+                      ) : dl.kind === "done" ? (
+                        <Check aria-hidden="true" className="ico" />
+                      ) : dl.kind === "err" ? (
+                        <TriangleAlert aria-hidden="true" className="ico" />
+                      ) : (
+                        <Download aria-hidden="true" className="ico" />
+                      )}
+                    </button>
+                    {dl.kind === "active" && (
+                      <span className="ep-bar" aria-hidden="true">
+                        <span style={{ width: `${dl.pct}%` }} />
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
       )}
     </div>
   );

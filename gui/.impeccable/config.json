@@ -1,0 +1,80 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "*",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/assigned.html"
+        ],
+        "createdAt": "2026-11-21T13:43:42.344Z",
+        "reason": "agent decision: throwaway decision-round sketch, not shipped UI; build audited separately"
+      },
+      {
+        "rule": "*",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/model-pick.html"
+        ],
+        "createdAt": "2026-11-21T13:43:42.358Z",
+        "reason": "agent decision: throwaway decision-round sketch, not shipped UI; build audited separately"
+      },
+      {
+        "rule": "*",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/canon.html"
+        ],
+        "createdAt": "2026-11-21T13:43:42.371Z",
+        "reason": "agent decision: throwaway decision-round sketch, not shipped UI; build audited separately"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/assigned.html"
+        ],
+        "createdAt": "2026-11-21T14:03:22.525Z",
+        "reason": "agent decision: throwaway decision sketch using the same families via Google Fonts names (Archivo, Atkinson Hyperlegible Next); shipped build uses the bundled Variable faces declared in DESIGN.md"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/model-pick.html"
+        ],
+        "createdAt": "2026-11-21T14:03:22.534Z",
+        "reason": "agent decision: throwaway decision sketch using the same families via Google Fonts names (Archivo, Atkinson Hyperlegible Next); shipped build uses the bundled Variable faces declared in DESIGN.md"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/challenger-wall.html"
+        ],
+        "createdAt": "2026-11-21T14:03:22.544Z",
+        "reason": "agent decision: throwaway decision sketch using the same families via Google Fonts names (Archivo, Atkinson Hyperlegible Next); shipped build uses the bundled Variable faces declared in DESIGN.md"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/canon.html"
+        ],
+        "createdAt": "2026-11-21T14:03:22.553Z",
+        "reason": "agent decision: throwaway decision sketch using the same families via Google Fonts names (Archivo, Atkinson Hyperlegible Next); shipped build uses the bundled Variable faces declared in DESIGN.md"
+      },
+      {
+        "rule": "*",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/challenger-wall.html"
+        ],
+        "createdAt": "2026-11-21T14:03:22.562Z",
+        "reason": "agent decision: throwaway decision-round sketch, not shipped UI"
+      }
+    ]
+  }
+}

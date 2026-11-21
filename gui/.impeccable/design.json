@@ -1,0 +1,470 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-21T13:59:19+00:00",
+  "title": "Design System: Animix ITA",
+  "extensions": {
+    "colorMeta": {
+      "ground": {
+        "role": "neutral",
+        "displayName": "Night Ground",
+        "canonical": "oklch(20.0% 0.044 274)",
+        "tonalRamp": [
+          "oklch(15% 0.041 274)",
+          "oklch(26% 0.040 274)",
+          "oklch(38% 0.033 274)",
+          "oklch(49% 0.026 274)",
+          "oklch(61% 0.019 274)",
+          "oklch(72% 0.012 274)",
+          "oklch(84% 0.011 274)",
+          "oklch(95% 0.011 274)"
+        ]
+      },
+      "ground-2": {
+        "role": "neutral",
+        "displayName": "Cel Layer",
+        "canonical": "oklch(23.4% 0.056 274)",
+        "tonalRamp": [
+          "oklch(15% 0.049 274)",
+          "oklch(26% 0.054 274)",
+          "oklch(38% 0.045 274)",
+          "oklch(49% 0.036 274)",
+          "oklch(61% 0.027 274)",
+          "oklch(72% 0.018 274)",
+          "oklch(84% 0.014 274)",
+          "oklch(95% 0.014 274)"
+        ]
+      },
+      "ground-3": {
+        "role": "neutral",
+        "displayName": "Raised Cel",
+        "canonical": "oklch(28.4% 0.079 273)",
+        "tonalRamp": [
+          "oklch(15% 0.064 273)",
+          "oklch(26% 0.076 273)",
+          "oklch(38% 0.068 273)",
+          "oklch(49% 0.056 273)",
+          "oklch(61% 0.043 273)",
+          "oklch(72% 0.030 273)",
+          "oklch(84% 0.020 273)",
+          "oklch(95% 0.020 273)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "canonical": "oklch(38.8% 0.102 274)",
+        "tonalRamp": [
+          "oklch(15% 0.068 274)",
+          "oklch(26% 0.084 274)",
+          "oklch(38% 0.100 274)",
+          "oklch(49% 0.087 274)",
+          "oklch(61% 0.070 274)",
+          "oklch(72% 0.054 274)",
+          "oklch(84% 0.038 274)",
+          "oklch(95% 0.025 274)"
+        ]
+      },
+      "line-strong": {
+        "role": "neutral",
+        "displayName": "Strong Line",
+        "canonical": "oklch(47.2% 0.106 274)",
+        "tonalRamp": [
+          "oklch(15% 0.058 274)",
+          "oklch(26% 0.075 274)",
+          "oklch(38% 0.092 274)",
+          "oklch(49% 0.102 274)",
+          "oklch(61% 0.086 274)",
+          "oklch(72% 0.069 274)",
+          "oklch(84% 0.052 274)",
+          "oklch(95% 0.035 274)"
+        ]
+      },
+      "field-border": {
+        "role": "neutral",
+        "displayName": "Field Border",
+        "canonical": "oklch(58.4% 0.102 275)",
+        "tonalRamp": [
+          "oklch(15% 0.040 275)",
+          "oklch(26% 0.056 275)",
+          "oklch(38% 0.073 275)",
+          "oklch(49% 0.089 275)",
+          "oklch(61% 0.099 275)",
+          "oklch(72% 0.083 275)",
+          "oklch(84% 0.066 275)",
+          "oklch(95% 0.050 275)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(12.6% 0.022 276)",
+        "tonalRamp": [
+          "oklch(15% 0.021 276)",
+          "oklch(26% 0.018 276)",
+          "oklch(38% 0.014 276)",
+          "oklch(49% 0.011 276)",
+          "oklch(61% 0.007 276)",
+          "oklch(72% 0.005 276)",
+          "oklch(84% 0.005 276)",
+          "oklch(95% 0.005 276)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "oklch(95.8% 0.020 280)",
+        "tonalRamp": [
+          "oklch(15% 0.005 280)",
+          "oklch(26% 0.005 280)",
+          "oklch(38% 0.005 280)",
+          "oklch(49% 0.007 280)",
+          "oklch(61% 0.010 280)",
+          "oklch(72% 0.014 280)",
+          "oklch(84% 0.017 280)",
+          "oklch(95% 0.020 280)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted Lavender",
+        "canonical": "oklch(76.1% 0.057 276)",
+        "tonalRamp": [
+          "oklch(15% 0.014 276)",
+          "oklch(26% 0.017 276)",
+          "oklch(38% 0.026 276)",
+          "oklch(49% 0.035 276)",
+          "oklch(61% 0.044 276)",
+          "oklch(72% 0.054 276)",
+          "oklch(84% 0.051 276)",
+          "oklch(95% 0.042 276)"
+        ]
+      },
+      "yellow": {
+        "role": "primary",
+        "displayName": "Next-Episode Yellow",
+        "canonical": "oklch(87.9% 0.162 91)",
+        "tonalRamp": [
+          "oklch(15% 0.040 91)",
+          "oklch(26% 0.040 91)",
+          "oklch(38% 0.048 91)",
+          "oklch(49% 0.074 91)",
+          "oklch(61% 0.100 91)",
+          "oklch(72% 0.126 91)",
+          "oklch(84% 0.152 91)",
+          "oklch(95% 0.146 91)"
+        ]
+      },
+      "sub": {
+        "role": "secondary",
+        "displayName": "Sub Cyan",
+        "canonical": "oklch(77.2% 0.132 225)",
+        "tonalRamp": [
+          "oklch(15% 0.033 225)",
+          "oklch(26% 0.038 225)",
+          "oklch(38% 0.059 225)",
+          "oklch(49% 0.081 225)",
+          "oklch(61% 0.102 225)",
+          "oklch(72% 0.123 225)",
+          "oklch(84% 0.121 225)",
+          "oklch(95% 0.099 225)"
+        ]
+      },
+      "dub": {
+        "role": "secondary",
+        "displayName": "Dub Pink",
+        "canonical": "oklch(72.2% 0.184 4)",
+        "tonalRamp": [
+          "oklch(15% 0.046 4)",
+          "oklch(26% 0.066 4)",
+          "oklch(38% 0.095 4)",
+          "oklch(49% 0.125 4)",
+          "oklch(61% 0.154 4)",
+          "oklch(72% 0.184 4)",
+          "oklch(84% 0.154 4)",
+          "oklch(95% 0.125 4)"
+        ]
+      },
+      "danger": {
+        "role": "tertiary",
+        "displayName": "Danger Coral",
+        "canonical": "oklch(73.5% 0.163 22)",
+        "tonalRamp": [
+          "oklch(15% 0.041 22)",
+          "oklch(26% 0.056 22)",
+          "oklch(38% 0.082 22)",
+          "oklch(49% 0.108 22)",
+          "oklch(61% 0.134 22)",
+          "oklch(72% 0.160 22)",
+          "oklch(84% 0.140 22)",
+          "oklch(95% 0.114 22)"
+        ]
+      },
+      "ok": {
+        "role": "tertiary",
+        "displayName": "Watched Mint",
+        "canonical": "oklch(83.3% 0.134 160)",
+        "tonalRamp": [
+          "oklch(15% 0.034 160)",
+          "oklch(26% 0.034 160)",
+          "oklch(38% 0.049 160)",
+          "oklch(49% 0.070 160)",
+          "oklch(61% 0.092 160)",
+          "oklch(72% 0.113 160)",
+          "oklch(84% 0.134 160)",
+          "oklch(95% 0.112 160)"
+        ]
+      },
+      "paint-fallback": {
+        "role": "tertiary",
+        "displayName": "Series Paint (fallback source)",
+        "canonical": "oklch(75.7% 0.134 72)",
+        "tonalRamp": [
+          "oklch(15% 0.033 72)",
+          "oklch(26% 0.041 72)",
+          "oklch(38% 0.063 72)",
+          "oklch(49% 0.084 72)",
+          "oklch(61% 0.106 72)",
+          "oklch(72% 0.127 72)",
+          "oklch(84% 0.119 72)",
+          "oklch(95% 0.098 72)"
+        ],
+        "note": "Default --paint-src; rendered paint is oklch(from var(--paint-src) 0.8 0.125 h)."
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "EP Numeral",
+        "purpose": "Huge condensed episode numeral on the Home lead panel (player EP numeral: same face, 82% width, 1.5rem)."
+      },
+      "headline": {
+        "displayName": "Series Title",
+        "purpose": "Series title on the series band."
+      },
+      "page-title": {
+        "displayName": "Page Title",
+        "purpose": "Screen titles."
+      },
+      "title": {
+        "displayName": "Section Title",
+        "purpose": "Section and panel headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text; synopses at 1.6 line-height within 75ch."
+      },
+      "body-strong": {
+        "displayName": "Body Strong",
+        "purpose": "Buttons, nav items, card titles, notes."
+      },
+      "label": {
+        "displayName": "Tag Label",
+        "purpose": "Uppercase tags only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "focus-ink-ring",
+        "value": "0 0 0 2px #05060f",
+        "purpose": "Inner ink ring under the 3px paper focus outline (offset 2px); part of focus, not elevation."
+      },
+      {
+        "name": "popover-drop",
+        "value": "0 0.75rem 2rem rgba(0, 0, 0, 0.5)",
+        "purpose": "Single use: hover info popover over the poster grid."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "The one easing for every transition and the loader hop."
+      },
+      {
+        "name": "duration-state",
+        "value": "150ms",
+        "purpose": "Colour, border, opacity and press transitions."
+      },
+      {
+        "name": "duration-lift",
+        "value": "200ms",
+        "purpose": "Poster lift and player controls fade/rise."
+      },
+      {
+        "name": "breathe",
+        "value": "1.4s ease-in-out infinite alternate, opacity 0.55 to 1",
+        "purpose": "Skeleton placeholders."
+      },
+      {
+        "name": "hop",
+        "value": "900ms, staggered 150ms",
+        "purpose": "Three-square yellow loader in the player."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "durations 1ms, one iteration, no poster lift",
+        "purpose": "prefers-reduced-motion: reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "narrow",
+        "value": "max-width: 1180px",
+        "note": "icon rail 4.75rem, gutter 1.5rem, Home next grid stacks"
+      },
+      {
+        "name": "root-18",
+        "value": "min-width: 1700px",
+        "note": "html font-size 18px"
+      },
+      {
+        "name": "root-21",
+        "value": "min-width: 2300px",
+        "note": "html font-size 21px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Play Button",
+      "kind": "button",
+      "refersTo": "button-play",
+      "description": "The one yellow action: watch or resume the next episode.",
+      "html": "<button class=\"ds-btn ds-btn-play\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.25\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"6 3 20 12 6 21 6 3\"/></svg>Riprendi l'episodio 3</button>",
+      "css": ":host{--ground:#10142a;--ground-2:#161b38;--ground-3:#1e2550;--line:#343e7a;--line-strong:#4a5596;--field-border:#6a76b8;--ink:#05060f;--paper:#eef0ff;--muted:#a7afd6;--yellow:#ffd23f;--sub:#38c6f4;--dub:#ff6b97;--danger:#ff7a7a;--r-sm:4px;--r-md:6px;--ease:cubic-bezier(0.16,1,0.3,1);--font-ui:'Atkinson Hyperlegible Next Variable',system-ui,sans-serif;--font-display:'Archivo Variable','Atkinson Hyperlegible Next Variable',system-ui,sans-serif}.ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:.55rem;min-height:2.75rem;padding:0 1.15rem;border-radius:var(--r-sm);border:2px solid transparent;font:700 1rem/1.1 var(--font-ui);cursor:pointer;transition:background-color 150ms var(--ease),border-color 150ms var(--ease),color 150ms var(--ease),transform 150ms var(--ease)}.ds-btn:active{transform:translateY(1px)}.ds-btn:focus-visible{outline:3px solid var(--paper);outline-offset:2px;box-shadow:0 0 0 2px var(--ink);}.ds-btn-play{background:var(--yellow);color:var(--ink);border-color:var(--ink)}.ds-btn-play:hover{background:#ffe073}"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Paper fill, ink line: primary actions that are not watching.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Collega AniList</button>",
+      "css": ":host{--ground:#10142a;--ground-2:#161b38;--ground-3:#1e2550;--line:#343e7a;--line-strong:#4a5596;--field-border:#6a76b8;--ink:#05060f;--paper:#eef0ff;--muted:#a7afd6;--yellow:#ffd23f;--sub:#38c6f4;--dub:#ff6b97;--danger:#ff7a7a;--r-sm:4px;--r-md:6px;--ease:cubic-bezier(0.16,1,0.3,1);--font-ui:'Atkinson Hyperlegible Next Variable',system-ui,sans-serif;--font-display:'Archivo Variable','Atkinson Hyperlegible Next Variable',system-ui,sans-serif}.ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:.55rem;min-height:2.75rem;padding:0 1.15rem;border-radius:var(--r-sm);border:2px solid transparent;font:700 1rem/1.1 var(--font-ui);cursor:pointer;transition:background-color 150ms var(--ease),border-color 150ms var(--ease),color 150ms var(--ease),transform 150ms var(--ease)}.ds-btn:active{transform:translateY(1px)}.ds-btn:focus-visible{outline:3px solid var(--paper);outline-offset:2px;box-shadow:0 0 0 2px var(--ink);}.ds-btn-primary{background:var(--paper);color:var(--ink);border-color:var(--ink)}.ds-btn-primary:hover{background:#fff}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action on the ground.",
+      "html": "<div style=\"background:#10142a;padding:16px\"><button class=\"ds-btn ds-btn-ghost\">Carica altri</button></div>",
+      "css": ":host{--ground:#10142a;--ground-2:#161b38;--ground-3:#1e2550;--line:#343e7a;--line-strong:#4a5596;--field-border:#6a76b8;--ink:#05060f;--paper:#eef0ff;--muted:#a7afd6;--yellow:#ffd23f;--sub:#38c6f4;--dub:#ff6b97;--danger:#ff7a7a;--r-sm:4px;--r-md:6px;--ease:cubic-bezier(0.16,1,0.3,1);--font-ui:'Atkinson Hyperlegible Next Variable',system-ui,sans-serif;--font-display:'Archivo Variable','Atkinson Hyperlegible Next Variable',system-ui,sans-serif}.ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:.55rem;min-height:2.75rem;padding:0 1.15rem;border-radius:var(--r-sm);border:2px solid transparent;font:700 1rem/1.1 var(--font-ui);cursor:pointer;transition:background-color 150ms var(--ease),border-color 150ms var(--ease),color 150ms var(--ease),transform 150ms var(--ease)}.ds-btn:active{transform:translateY(1px)}.ds-btn:focus-visible{outline:3px solid var(--paper);outline-offset:2px;box-shadow:0 0 0 2px var(--ink);}.ds-btn-ghost{background:transparent;color:var(--paper);border-color:var(--line-strong)}.ds-btn-ghost:hover{background:var(--ground-3);border-color:var(--muted)}"
+    },
+    {
+      "name": "Ink Buttons on Paint",
+      "kind": "button",
+      "refersTo": "button-ink",
+      "description": "On a series-painted field only ink is used.",
+      "html": "<div class=\"ds-painted\"><button class=\"ds-btn ds-btn-ink\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.25\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"6 3 20 12 6 21 6 3\"/></svg>Guarda</button><button class=\"ds-btn ds-btn-ink-ghost\">Scheda</button></div>",
+      "css": ":host{--ground:#10142a;--ground-2:#161b38;--ground-3:#1e2550;--line:#343e7a;--line-strong:#4a5596;--field-border:#6a76b8;--ink:#05060f;--paper:#eef0ff;--muted:#a7afd6;--yellow:#ffd23f;--sub:#38c6f4;--dub:#ff6b97;--danger:#ff7a7a;--r-sm:4px;--r-md:6px;--ease:cubic-bezier(0.16,1,0.3,1);--font-ui:'Atkinson Hyperlegible Next Variable',system-ui,sans-serif;--font-display:'Archivo Variable','Atkinson Hyperlegible Next Variable',system-ui,sans-serif}.ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:.55rem;min-height:2.75rem;padding:0 1.15rem;border-radius:var(--r-sm);border:2px solid transparent;font:700 1rem/1.1 var(--font-ui);cursor:pointer;transition:background-color 150ms var(--ease),border-color 150ms var(--ease),color 150ms var(--ease),transform 150ms var(--ease)}.ds-btn:active{transform:translateY(1px)}.ds-btn:focus-visible{outline:3px solid var(--paper);outline-offset:2px;box-shadow:0 0 0 2px var(--ink);}.ds-painted{--paint-src:#e4a143;background:oklch(from var(--paint-src) 0.8 0.125 h);color:var(--ink);border:3px solid var(--ink);border-radius:var(--r-md);padding:1.25rem;display:flex;gap:.6rem}.ds-btn-ink{background:var(--ink);color:var(--paper);border-color:var(--ink)}.ds-btn-ink:hover{background:#1b1f33}.ds-btn-ink-ghost{background:transparent;color:var(--ink);border-color:var(--ink)}.ds-btn-ink-ghost:hover{background:rgba(5,6,15,.12)}"
+    },
+    {
+      "name": "Cel Tags",
+      "kind": "chip",
+      "refersTo": "tag-new",
+      "description": "Paint fill, ink line: NEW yellow, Sub ITA cyan, Dub ITA pink.",
+      "html": "<div style=\"display:flex;gap:.4rem\"><span class=\"ds-tag ds-tag-new\">EP 9 nuovo</span><span class=\"ds-tag ds-tag-sub\">Sub ITA</span><span class=\"ds-tag ds-tag-dub\">Dub ITA</span><span class=\"ds-tag ds-tag-neutral\">TV</span></div>",
+      "css": ":host{--ground:#10142a;--ground-2:#161b38;--ground-3:#1e2550;--line:#343e7a;--line-strong:#4a5596;--field-border:#6a76b8;--ink:#05060f;--paper:#eef0ff;--muted:#a7afd6;--yellow:#ffd23f;--sub:#38c6f4;--dub:#ff6b97;--danger:#ff7a7a;--r-sm:4px;--r-md:6px;--ease:cubic-bezier(0.16,1,0.3,1);--font-ui:'Atkinson Hyperlegible Next Variable',system-ui,sans-serif;--font-display:'Archivo Variable','Atkinson Hyperlegible Next Variable',system-ui,sans-serif}.ds-tag{display:inline-flex;align-items:center;font:800 .8rem/1 var(--font-display);letter-spacing:.04em;text-transform:uppercase;font-variant-numeric:tabular-nums;padding:.3rem .45rem;border-radius:3px;border:2px solid var(--ink);color:var(--ink);white-space:nowrap}.ds-tag-new{background:var(--yellow)}.ds-tag-sub{background:var(--sub)}.ds-tag-dub{background:var(--dub)}.ds-tag-neutral{background:var(--ground-3);color:var(--paper);border-color:var(--line-strong)}"
+    },
+    {
+      "name": "Sub/Dub Segmented Control",
+      "kind": "custom",
+      "refersTo": "segmented-option",
+      "description": "Selected Sub turns cyan, Dub pink; generic tabs turn paper.",
+      "html": "<div class=\"ds-seg\"><button class=\"ds-seg-btn ds-seg-sub\" aria-pressed=\"true\">Sub ITA</button><button class=\"ds-seg-btn ds-seg-dub\" aria-pressed=\"false\">Dub ITA</button></div>",
+      "css": ":host{--ground:#10142a;--ground-2:#161b38;--ground-3:#1e2550;--line:#343e7a;--line-strong:#4a5596;--field-border:#6a76b8;--ink:#05060f;--paper:#eef0ff;--muted:#a7afd6;--yellow:#ffd23f;--sub:#38c6f4;--dub:#ff6b97;--danger:#ff7a7a;--r-sm:4px;--r-md:6px;--ease:cubic-bezier(0.16,1,0.3,1);--font-ui:'Atkinson Hyperlegible Next Variable',system-ui,sans-serif;--font-display:'Archivo Variable','Atkinson Hyperlegible Next Variable',system-ui,sans-serif}.ds-seg{display:inline-flex;border:2px solid var(--line);border-radius:var(--r-sm);overflow:hidden}.ds-seg-btn{background:none;border:0;cursor:pointer;padding:.5rem .95rem;font:800 .85rem var(--font-display);letter-spacing:.03em;color:var(--muted);transition:background-color 150ms var(--ease),color 150ms var(--ease)}.ds-seg-btn+.ds-seg-btn{border-left:2px solid var(--line)}.ds-seg-btn:hover{color:var(--paper)}.ds-seg-btn[aria-pressed=true]{background:var(--paper);color:var(--ink)}.ds-seg-sub[aria-pressed=true]{background:var(--sub)}.ds-seg-dub[aria-pressed=true]{background:var(--dub)}.ds-seg-btn:focus-visible{outline:3px solid var(--ink);outline-offset:-5px}.ds-seg-btn[aria-pressed=false]:focus-visible{outline-color:var(--paper)}"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Cel-layer field with a 3:1 border and a / key hint.",
+      "html": "<label class=\"ds-search\"><svg class=\"ds-search-ico\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.25\" stroke-linecap=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input class=\"ds-field\" placeholder=\"Cerca un anime...\"><span class=\"ds-kbd\">/</span></label>",
+      "css": ":host{--ground:#10142a;--ground-2:#161b38;--ground-3:#1e2550;--line:#343e7a;--line-strong:#4a5596;--field-border:#6a76b8;--ink:#05060f;--paper:#eef0ff;--muted:#a7afd6;--yellow:#ffd23f;--sub:#38c6f4;--dub:#ff6b97;--danger:#ff7a7a;--r-sm:4px;--r-md:6px;--ease:cubic-bezier(0.16,1,0.3,1);--font-ui:'Atkinson Hyperlegible Next Variable',system-ui,sans-serif;--font-display:'Archivo Variable','Atkinson Hyperlegible Next Variable',system-ui,sans-serif}.ds-search{position:relative;display:flex;align-items:center;max-width:40rem}.ds-search-ico{position:absolute;left:.9rem;color:var(--muted)}.ds-field{width:100%;min-height:3rem;padding:0 3rem 0 2.75rem;font:1.05rem var(--font-ui);background:var(--ground-2);color:var(--paper);border:2px solid var(--field-border);border-radius:var(--r-sm);transition:border-color 150ms var(--ease)}.ds-field::placeholder{color:var(--muted)}.ds-field:hover{border-color:var(--muted)}.ds-field:focus-visible{outline:none;border-color:var(--paper)}.ds-kbd{position:absolute;right:.85rem;font:800 .8rem var(--font-display);border:2px solid var(--line-strong);border-radius:3px;padding:.05rem .45rem;color:var(--muted)}"
+    },
+    {
+      "name": "Ink Rail",
+      "kind": "nav",
+      "refersTo": "rail",
+      "description": "Ink navigation column; the current item is a paper chip.",
+      "html": "<nav class=\"ds-rail\"><div class=\"ds-wm\">Animix <span>ITA</span></div><a class=\"ds-rail-item is-current\" href=\"#\">Home</a><a class=\"ds-rail-item\" href=\"#\">Scopri</a><a class=\"ds-rail-item\" href=\"#\">Cerca</a></nav>",
+      "css": ":host{--ground:#10142a;--ground-2:#161b38;--ground-3:#1e2550;--line:#343e7a;--line-strong:#4a5596;--field-border:#6a76b8;--ink:#05060f;--paper:#eef0ff;--muted:#a7afd6;--yellow:#ffd23f;--sub:#38c6f4;--dub:#ff6b97;--danger:#ff7a7a;--r-sm:4px;--r-md:6px;--ease:cubic-bezier(0.16,1,0.3,1);--font-ui:'Atkinson Hyperlegible Next Variable',system-ui,sans-serif;--font-display:'Archivo Variable','Atkinson Hyperlegible Next Variable',system-ui,sans-serif}.ds-rail{background:var(--ink);width:13.5rem;padding:1.5rem .75rem 1rem;display:flex;flex-direction:column;gap:.25rem}.ds-wm{font:900 1.75rem/1 var(--font-display);font-stretch:112%;letter-spacing:-.02em;color:var(--paper);padding:0 .6rem 1.75rem}.ds-wm span{font-size:.72rem;font-weight:800;letter-spacing:.06em;background:var(--yellow);color:var(--ink);padding:.2rem .35rem;border-radius:3px;vertical-align:middle}.ds-rail-item{display:flex;padding:.7rem .8rem;border-radius:var(--r-sm);color:var(--muted);font:700 1rem var(--font-ui);text-decoration:none;transition:background-color 150ms var(--ease),color 150ms var(--ease)}.ds-rail-item:hover{color:var(--paper);background:#141936}.ds-rail-item.is-current{background:var(--paper);color:var(--ink)}.ds-rail-item:focus-visible{outline:3px solid var(--paper);outline-offset:2px;box-shadow:0 0 0 2px var(--ink);}"
+    },
+    {
+      "name": "Painted Lead Panel",
+      "kind": "card",
+      "refersTo": "lead-panel",
+      "description": "Ridipintura: the series' normalised paint, ink line, huge condensed EP numeral.",
+      "html": "<div class=\"ds-lead\"><div class=\"ds-lead-poster\"></div><div class=\"ds-lead-body\"><div class=\"ds-lead-ep\">EP03</div><div class=\"ds-lead-title\">Reincarnated as a Sword 2</div><div><span class=\"ds-ltag\">5 nuovi</span></div></div></div>",
+      "css": ":host{--ground:#10142a;--ground-2:#161b38;--ground-3:#1e2550;--line:#343e7a;--line-strong:#4a5596;--field-border:#6a76b8;--ink:#05060f;--paper:#eef0ff;--muted:#a7afd6;--yellow:#ffd23f;--sub:#38c6f4;--dub:#ff6b97;--danger:#ff7a7a;--r-sm:4px;--r-md:6px;--ease:cubic-bezier(0.16,1,0.3,1);--font-ui:'Atkinson Hyperlegible Next Variable',system-ui,sans-serif;--font-display:'Archivo Variable','Atkinson Hyperlegible Next Variable',system-ui,sans-serif}.ds-lead{--paint-src:#e4a143;display:grid;grid-template-columns:auto 1fr;gap:1.4rem;padding:1.25rem;background:oklch(from var(--paint-src) 0.8 0.125 h);color:var(--ink);border:3px solid var(--ink);border-radius:var(--r-md)}.ds-lead-poster{width:7rem;aspect-ratio:2/3;background:var(--ink);border:3px solid var(--ink);border-radius:var(--r-sm)}.ds-lead-body{display:flex;flex-direction:column;gap:.6rem}.ds-lead-ep{font:900 4rem/.82 var(--font-display);font-stretch:78%;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.ds-lead-title{font:850 1.5rem/1.05 var(--font-display);font-stretch:104%}.ds-ltag{display:inline-flex;font:800 .8rem/1 var(--font-display);letter-spacing:.04em;text-transform:uppercase;padding:.3rem .45rem;border-radius:3px;border:2px solid var(--ink);background:var(--ink);color:var(--yellow)}"
+    },
+    {
+      "name": "Poster Card",
+      "kind": "card",
+      "refersTo": "poster-card",
+      "description": "2:3 poster, strong-line border, EP tag, yellow exact-length progress.",
+      "html": "<a class=\"ds-card\" href=\"#\"><span class=\"ds-poster\"><span class=\"ds-badge\">EP 7</span><span class=\"ds-meter\"><span style=\"width:40%\"></span></span></span><span class=\"ds-card-title\">Psyren</span></a>",
+      "css": ":host{--ground:#10142a;--ground-2:#161b38;--ground-3:#1e2550;--line:#343e7a;--line-strong:#4a5596;--field-border:#6a76b8;--ink:#05060f;--paper:#eef0ff;--muted:#a7afd6;--yellow:#ffd23f;--sub:#38c6f4;--dub:#ff6b97;--danger:#ff7a7a;--r-sm:4px;--r-md:6px;--ease:cubic-bezier(0.16,1,0.3,1);--font-ui:'Atkinson Hyperlegible Next Variable',system-ui,sans-serif;--font-display:'Archivo Variable','Atkinson Hyperlegible Next Variable',system-ui,sans-serif}.ds-card{display:flex;flex-direction:column;width:10rem;color:var(--paper);text-decoration:none;font:700 .95rem/1.25 var(--font-ui);gap:.45rem}.ds-poster{position:relative;display:block;aspect-ratio:2/3;border-radius:var(--r-md);overflow:hidden;background:var(--ground-2);border:2px solid var(--line-strong);transition:border-color 150ms var(--ease),transform 200ms var(--ease)}.ds-card:hover .ds-poster{border-color:var(--paper);transform:translateY(-3px)}.ds-card:focus-visible{outline:none}.ds-card:focus-visible .ds-poster{outline:3px solid var(--paper);outline-offset:2px;border-color:var(--ink)}.ds-badge{position:absolute;left:.5rem;top:.5rem;font:800 .8rem/1 var(--font-display);letter-spacing:.04em;padding:.3rem .45rem;border-radius:3px;border:2px solid var(--ink);background:var(--sub);color:var(--ink)}.ds-meter{position:absolute;left:0;right:0;bottom:0;height:5px;background:rgba(5,6,15,.7)}.ds-meter>span{display:block;height:100%;background:var(--yellow)}@media (prefers-reduced-motion:reduce){.ds-card:hover .ds-poster{transform:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Rodovetro (the anime cel)",
+    "overview": "The interface is painted like an animation cel: a night-indigo background painting, flat unmodulated paint laid on top, and a real ink line (2–3px, near-black) around every painted shape. There are no gradients, no glass, no backdrop blur. Depth comes from cel layers (three indigo grounds stepping lighter) and from ink outlines, not from light.\n\nPaint colours have jobs, and the jobs are the system. Yellow marks the next thing to watch and nothing else; cyan is Sub ITA; pink is Dub ITA; paper-white carries every primary action that is not \"watch\". Each series additionally repaints its own surfaces (lead panel on Home, the band on the series page, its next-episode cell, the player's seek fill) with its AniList cover colour, normalised in OKLCH so ink always reads on it (\"ridipintura\").\n\nDensity is high and calm: one dense row of continue-watching cards, tabular figures everywhere numbers appear, hairline gaps. The UI is built for two distances at once, desk and sofa: type is large, the root size steps up on big windows, and every control has a visible paper-and-ink focus ring.",
+    "keyCharacteristics": [
+      "Flat paint on a night-indigo ground, outlined in ink; no gradients, glass or blur.",
+      "Colour by job: yellow = watch/new, cyan = Sub ITA, pink = Dub ITA, paper = other primary actions, ink = actions on painted fields.",
+      "Per-series paint, normalised to one lightness/chroma band (`oklch(from <src> 0.8 0.125 h)`).",
+      "Archivo with the width axis for numerals and headings; Atkinson Hyperlegible Next for everything read.",
+      "Square-ish corners (3–6px), 2–3px borders, tabular numerals.",
+      "Root size steps (16 → 18 → 21px) for TV-distance viewing."
+    ],
+    "rules": [
+      {
+        "name": "The Paint Has a Job Rule",
+        "body": "Yellow means watch or new, cyan means Sub ITA, pink means Dub ITA. Never use one of these paints decoratively or for a different meaning; a non-watch primary action is paper, not yellow.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink on Paint Rule",
+        "body": "On a series-painted field, text and buttons are ink (`btn-ink`, `btn-ink-ghost`), and tags flip to ink fills that keep their paint as text colour, so no paint ever sits on another paint. Yellow is not used on paint because it cannot hold contrast against every series colour.",
+        "section": "colors"
+      },
+      {
+        "name": "The Normalised Paint Rule",
+        "body": "Series colours are never used raw. They always pass through the OKLCH normalisation (L 0.8, C 0.125, source hue) so ink text reads on any series.",
+        "section": "colors"
+      },
+      {
+        "name": "The Numerals Are Archivo Rule",
+        "body": "Episode numbers, facts (score, year, episodes), times, skip amounts and download percentages are set in Archivo 800–900 with tabular figures. Columns of numbers never jitter.",
+        "section": "typography"
+      },
+      {
+        "name": "The Uppercase Is for Tags Rule",
+        "body": "Uppercase letter-spaced text exists only inside tags. Headings and labels stay sentence case.",
+        "section": "typography"
+      },
+      {
+        "name": "The No Light Rule",
+        "body": "No gradients, glass, backdrop blur or glow. Overlays that must sit over video use a flat translucent ink band (`rgba(5,6,15,0.82)`) with an ink top line, never a scrim gradient.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do reserve yellow for watch and new: the Play button, NEW tags, the current episode, the next-episode overlay, progress fills.",
+      "Do mark Sub ITA in cyan and Dub ITA in pink wherever the version matters.",
+      "Do use paper fill with an ink border for primary actions that are not watching.",
+      "Do put only ink on series paint, and pass every series colour through `oklch(from <src> 0.8 0.125 h)`.",
+      "Do outline painted shapes in ink (2px on controls and tags, 3px on painted fields, their posters and the player stage).",
+      "Do set every number in Archivo with tabular figures.",
+      "Do size everything in rem so the 16/18/21px root steps scale the whole UI for TV distance.",
+      "Do keep the paper-and-ink focus ring visible on every focusable control."
+    ],
+    "donts": [
+      "Don't use gradients, glass, backdrop blur or glow, including scrims over video; use a flat ink band.",
+      "Don't use yellow for a non-watch action or as decoration.",
+      "Don't put yellow, cyan or pink fills on a painted field; flip them to ink fills.",
+      "Don't use raw series colours unnormalised.",
+      "Don't round controls into pills; corners stay at 3–6px.",
+      "Don't set uppercase letter-spaced text outside tags."
+    ]
+  }
+}

@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNav } from "../App";
-import { Card } from "../components/Card";
+import { Card, CardSkeletons } from "../components/Card";
 import type { AniListMedia } from "../types";
 
 type Tab = "trending" | "popular" | "seasonal";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "trending", label: "Di tendenza" },
-  { id: "popular", label: "Popolari" },
-  { id: "seasonal", label: "Stagione" },
+  { id: "popular", label: "Più popolari" },
+  { id: "seasonal", label: "Questa stagione" },
 ];
 
 export function Discover() {
@@ -16,52 +16,57 @@ export function Discover() {
   const [tab, setTab] = useState<Tab>("trending");
   const [media, setMedia] = useState<AniListMedia[]>([]);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let alive = true;
     setLoading(true);
-    const fn =
-      tab === "trending"
-        ? window.ani.alTrending
-        : tab === "popular"
-          ? window.ani.alPopular
-          : window.ani.alSeasonal;
-    fn().then((m) => {
-      if (alive) {
+    setFailed(false);
+    const fn = tab === "trending" ? window.ani.alTrending : tab === "popular" ? window.ani.alPopular : window.ani.alSeasonal;
+    fn().then(
+      (m) => {
+        if (!alive) return;
         setMedia(m);
         setLoading(false);
-      }
-    });
+      },
+      () => {
+        if (!alive) return;
+        setMedia([]);
+        setFailed(true);
+        setLoading(false);
+      },
+    );
     return () => {
       alive = false;
     };
-  }, [tab]);
+  }, [tab, attempt]);
 
-  // clicking an AniList title searches AnimeWorld for it (best-effort match)
+  // open the series straight from its MAL id (AniList -> AnimeWorld bridge);
+  // titles without one fall back to a text search
   function open(m: AniListMedia) {
-    const q = m.title.romaji || m.title.english || "";
-    go({ name: "browse", query: q });
+    const title = m.title.english || m.title.romaji;
+    if (m.idMal) {
+      go({
+        name: "anime",
+        malId: m.idMal,
+        titles: [m.title.english, m.title.romaji].filter((t): t is string => !!t),
+        title,
+        poster: m.coverImage?.extraLarge || m.coverImage?.large || null,
+      });
+    } else go({ name: "browse", query: m.title.romaji || title });
   }
 
   return (
     <div className="page">
-      <div className="hero small">
-        <span className="hero-kicker">ANILIST · SCOPRI</span>
-        <h1 className="hero-title">Scopri nuovi anime.</h1>
-        <p className="hero-sub">
-          Classifiche da AniList — clicca un titolo per cercarlo su AnimeWorld.
-        </p>
-      </div>
-
-      <div className="section-head">
-        <h2 className="section-title">Classifiche</h2>
-        <div className="tabs">
+      <div className="page-head">
+        <div>
+          <h1 className="page-title">Scopri</h1>
+          <p className="page-sub">Le classifiche di AniList. Apri un titolo per vederne gli episodi su AnimeWorld.</p>
+        </div>
+        <div className="seg" role="group" aria-label="Classifica">
           {TABS.map((t) => (
-            <button
-              key={t.id}
-              className={"tab" + (tab === t.id ? " active" : "")}
-              onClick={() => setTab(t.id)}
-            >
+            <button key={t.id} className="seg-btn" aria-pressed={tab === t.id} onClick={() => setTab(t.id)}>
               {t.label}
             </button>
           ))}
@@ -69,7 +74,15 @@ export function Discover() {
       </div>
 
       {loading ? (
-        <div className="loading">Caricamento da AniList…</div>
+        <CardSkeletons count={18} />
+      ) : failed ? (
+        <div className="notice">
+          <strong>AniList non risponde.</strong>
+          <span>Controlla la connessione e riprova.</span>
+          <button className="btn btn-ghost" onClick={() => setAttempt((a) => a + 1)}>
+            Riprova
+          </button>
+        </div>
       ) : (
         <div className="grid">
           {media.map((m) => (
@@ -77,8 +90,12 @@ export function Discover() {
               key={m.id}
               title={m.title.english || m.title.romaji}
               poster={m.coverImage?.extraLarge || m.coverImage?.large || null}
-              badge={m.format}
-              sub={m.averageScore ? `★ ${m.averageScore}%` : null}
+              badge={m.format ? { label: m.format } : null}
+              sub={
+                [m.averageScore ? `AniList ${m.averageScore}%` : null, m.episodes ? `${m.episodes} ep` : null]
+                  .filter(Boolean)
+                  .join(" · ") || null
+              }
               onClick={() => open(m)}
             />
           ))}

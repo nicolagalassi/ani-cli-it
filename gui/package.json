@@ -1,6 +1,6 @@
 {
   "name": "animix-it",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "GUI italiana per ani-cli-it — anime Sub/Dub ITA da AnimeWorld",
   "author": "nicolagalassi",
   "license": "GPL-3.0",
@@ -50,6 +50,9 @@
     }
   },
   "dependencies": {
+    "@fontsource-variable/archivo": "^5.3.0",
+    "@fontsource-variable/atkinson-hyperlegible-next": "^5.3.0",
+    "lucide-react": "^1.77.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

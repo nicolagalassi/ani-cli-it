@@ -22,14 +22,15 @@ Note d'avvio:
 
 ## Funzioni
 
-- **Home** — "Continua a guardare" (riprende dall'ultimo episodio, con barra di avanzamento; rimuovi una serie con la × sulla card). Le serie con **episodi usciti e non ancora visti** sono evidenziate in giallo ("Ep 4 da vedere", "3 episodi da vedere") e messe in cima. Ultimi episodi con tab **Sub ITA / Dub ITA** e pulsante **Carica altri episodi** per andare indietro nel tempo. Le sezioni sono **riordinabili** con le frecce ↑/↓ (ordine salvato).
-- **Cerca** — ricerca con locandine, filtro Tutti / Sub / Dub.
-- **Scopri** — classifiche da AniList (di tendenza / popolari / stagione).
-- **Pagina anime** — locandina, voto **AnimeWorld** e **AniList**, generi, sinossi, link MyAnimeList/AniList, lista episodi con filtro e spunta ✓ sugli episodi già visti.
-- **Player integrato** — riproduzione MP4 in-app con barra controlli custom (funziona anche a schermo intero), precedente/successivo con **preload** (switch istantaneo), ripresa dalla posizione salvata, auto-avanzamento, **"Salta intro"** (ani-skip) che a fine episodio diventa **"Prossimo episodio"**, e skip manuale **±85s**.
-- **Account AniList** *(opzionale)* — login, sezione "In visione" sulla Home (con menu per cambiare lo stato: completato, in pausa, abbandonato, da vedere), sync automatico del progresso.
-- **Cronologia** persistente su disco.
-- **Impostazioni** — cambio dominio AnimeWorld e login AniList.
+- **Home** — in cima **Da vedere ora**: le serie con episodi usciti e non ancora visti, la prima dipinta nel colore della serie con un pulsante che fa partire subito l'episodio giusto. Sotto, **Continua a guardare** in una sola riga: la card riprende da dove eri rimasto o passa all'episodio dopo; (i) apre la scheda, × la toglie dalla cronologia. Poi **Ultime uscite** con Sub ITA / Dub ITA e **Carica episodi più vecchi**. Le sezioni si riordinano con le frecce e l'ordine viene salvato.
+- **Cerca** — risultati mentre scrivi, con locandine ed etichetta Sub ITA / Dub ITA; filtro Tutti / Sub / Dub.
+- **Scopri** — classifiche da AniList (di tendenza / più popolari / questa stagione); un titolo apre direttamente la sua scheda su AnimeWorld.
+- **Scheda della serie** — testata nel colore della serie, voto **AnimeWorld** e **AniList**, generi, trama, link MyAnimeList/AniList e pulsante Guarda / Riprendi sempre presente. Episodi visti segnati, il prossimo evidenziato; le serie lunghe sono divise in blocchi da 100. Download per episodio o per intervallo.
+- **Player integrato** — riproduzione MP4 in-app con controlli propri (anche a schermo intero): barra trascinabile con anteprima del tempo, precedente/successivo con **preload**, ripresa dalla posizione salvata, auto-avanzamento, **"Salta la sigla"** (ani-skip) che a fine episodio diventa **episodio successivo**, ±85 s, volume ricordato, striscia degli episodi sotto il video.
+- **Tastiera e TV** — tutta l'app si usa da tastiera: frecce per spostarsi tra card e pulsanti, `/` per cercare, `Esc` per tornare indietro; nel player Spazio, F, M, O, S, N/P e frecce. Le scorciatoie a un tasto (`/` e le lettere) si possono spegnere dalle Impostazioni. L'interfaccia si ingrandisce sulle finestre grandi, per la visione da divano.
+- **Account AniList** *(opzionale)* — login, sezione "In visione su AniList" in Home (con menu per cambiare lo stato), sync automatico del progresso.
+- **Cronologia** persistente su disco, con conferma prima di svuotarla.
+- **Impostazioni** — dominio AnimeWorld, login AniList, elenco delle scorciatoie e interruttore per quelle a un tasto.
 
 ## Compilare da sorgente
 
